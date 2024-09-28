@@ -9,14 +9,14 @@ const ProductSchema = new mongoose.Schema({
         type: String
     },
     price: {
-        type:number,
+        type: String,
     },
     category:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category'
     },
     quantity:{  
-        type: number,
+        type: String,
     }
 });
 

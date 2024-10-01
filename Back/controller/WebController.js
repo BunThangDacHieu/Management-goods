@@ -6,7 +6,7 @@ const User = require('../model/user');
 const Warehouse = require('../model/warehouse');
 const Supplier = require('../model/supplier');
 const Order = require('../model/order');
-const catchAsyncErrors = require('../middleware/AsyncErrors');
+const catchAsyncErrors = require('../middleware/ErrorAsync'); ;
 
 /-------------<Các method chuyền đến server đối với Products>---------------/
 //Hiển thị toàn bộ cơ sở dữ liệu trong hệ thống

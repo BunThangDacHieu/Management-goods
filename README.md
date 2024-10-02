@@ -1,2 +1,4 @@
 None.
-An loz, sao cái Back/ node_modules lại tai len dc, sai cho nào thì phải
+Tạo file .env bằng lệnh npm i dotenv
+rồi tạo PORT = <4 chữ số tùy ý>
+MONGODB_URI = <Localhost- mongodb>

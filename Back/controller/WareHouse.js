@@ -1,5 +1,3 @@
-const express = require('express');
-const router = express.Router();
 const catchAsyncErrors = require('../middleware/catchAsyncErrors');
 const WareHouse = require('../model/warehouse');
 
@@ -14,3 +12,23 @@ exports.GetAllWareHouse = catchAsyncErrors(async(req, res)=>{
         res.status(500).json({message: error.message});
     }
 })
+
+exports.CreateWareHouse = catchAsyncErrors(async(req, res) => {
+    const { name, location, capacity} = req.body;
+    //Kt kho bãi là bắt buộc hay không
+    if (!name) {
+        return res.status(400).json({ message: 'Tên là bắt buộc' });
+    }
+    //tạo nhà kho mới
+    try {
+        const newWareHouse = new WareHouse({
+            name,
+            location,
+            capacity
+        });
+        const savedWareHouse = await newWareHouse.save();
+        res.status(200).json(savedWareHouse);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});

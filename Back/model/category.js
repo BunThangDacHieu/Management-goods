@@ -7,7 +7,7 @@ const CategorySchema = new mongoose.Schema({
     },
     description: {
         type: String    
-    }
+    },
 },
 { 
     timestamps: true //tạo cho tiện kiểm tra CreateAt và UpdateAt

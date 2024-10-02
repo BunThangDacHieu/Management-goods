@@ -1,5 +1,3 @@
-const express = require('express');
-const router = express.Router();
 const catchAsyncErrors = require('../middleware/catchAsyncErrors');
 const Category = require('../model/category');
 
@@ -15,3 +13,18 @@ exports.GetAllCategory = catchAsyncErrors(async (req, res) => {
     }
 }
 )
+//tạo danh mục sản phẩm
+exports.CreateCategory = catchAsyncErrors(async (req, res) => {
+    const { name, description } = req.body;
+    try {
+        const newCategory = new Category({
+            name,
+            description
+        });
+
+        const savedCategory = await newCategory.save();
+        res.status(201).json(savedCategory);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});

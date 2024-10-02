@@ -9,24 +9,38 @@ const OrderController = require('../controller/OrderController');
 
 
 /-Products-/
-router.get('/products', ProductController.GetAllProducts)
-      .get('/products/:id', ProductController.getProductbyId);  
+router.route('/products') 
+      .get(ProductController.GetAllProducts)
+      .post(ProductController.CreateProduct);
+
+router.route('/product/:id')
+      .get(ProductController.getProductbyId);
+
 /--Category----/
-router.get('/category', CategoryController.GetAllCategory);
+router.route('/category')
+      .get(CategoryController.GetAllCategory)
+      .post(CategoryController.CreateCategory);
+
 
 /-User-/
-router.get('/user', UserController.GetAllUser);
+router.route('/user')
+      .get(UserController.GetAllUser);
 
 /-warehouse-/
-router.get('/warehouse', WarehouseController.GetAllWareHouse);
+router.route('/warehouse')
+      .get(WarehouseController.GetAllWareHouse)
+      .post(WarehouseController.CreateWareHouse);
+
 
 /-supplier-/
 
-router.get('/supplier', SupplierController.GetAllSupplier);
+router.route('/supplier')
+      .get(SupplierController.GetAllSupplier)
+      .post(SupplierController.CreateSupplier);
 
 /-Orders-/
-router.get('/order', OrderController.GetAllOrder);
-
+router.route('/order')
+      .get(OrderController.GetAllOrder);
 
 
 module.exports = router

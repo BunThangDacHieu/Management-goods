@@ -14,7 +14,9 @@ router.route('/products')
       .post(ProductController.CreateProduct);
 
 router.route('/product/:id')
-      .get(ProductController.getProductbyId);
+      .get(ProductController.getProductbyId)
+      .put(ProductController.UpdateProduct)
+      .delete(ProductController.DeleteProduct);
 
 /--Category----/
 router.route('/category')

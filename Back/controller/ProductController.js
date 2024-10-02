@@ -79,3 +79,39 @@ exports.CreateProduct = catchAsyncErrors(async (req, res, next) => {
         next(error);
     }
 });
+
+
+//Cập nhật thông tin cơ sở dữ liệu bằng ID
+exports.UpdateProduct = catchAsyncErrors(async (req, res) => {
+    try {
+        const updatedProduct = await Product.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true, runValidators: true }
+        ).populate('category');
+
+        if (!updatedProduct) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        res.status(200).json(updatedProduct);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+
+//Xóa cơ sở dữ liệu Product bằng Id
+exports.DeleteProduct = catchAsyncErrors(async (req, res) => {
+    try {
+        const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+
+        if (!deletedProduct) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        res.status(200).json({ message: 'Product deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});

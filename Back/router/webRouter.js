@@ -1,25 +1,31 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('../controller/WebController');
+const ProductController = require('../controller/ProductController');
+const CategoryController = require('../controller/CategoryController');
+const UserController = require('../controller/UserController');
+const WarehouseController = require('../controller/WareHouse');
+const SupplierController = require('../controller/SupplierController');
+const OrderController = require('../controller/OrderController');
+
 
 /-Products-/
-router.get('/products', controller.GetAllProducts);
-
+router.get('/products', ProductController.GetAllProducts)
+      .get('/products/:id', ProductController.getProductbyId);  
 /--Category----/
-router.get('/category', controller.GetAllCategory);
+router.get('/category', CategoryController.GetAllCategory);
 
 /-User-/
-router.get('/user', controller.GetAllUser);
+router.get('/user', UserController.GetAllUser);
 
 /-warehouse-/
-router.get('/warehouse', controller.GetAllWareHouse);
+router.get('/warehouse', WarehouseController.GetAllWareHouse);
 
 /-supplier-/
 
-router.get('/supplier', controller.GetAllSupplier);
+router.get('/supplier', SupplierController.GetAllSupplier);
 
 /-Orders-/
-router.get('/order', controller.GetAllOrder);
+router.get('/order', OrderController.GetAllOrder);
 
 
 

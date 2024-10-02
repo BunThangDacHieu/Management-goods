@@ -1,0 +1,12 @@
+/* Header.css */
+
+.header-container {
+    display: flex; /* Sử dụng flexbox để căn giữa */
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    height: 100vh; /* Chiều cao bằng chiều cao của viewport */
+}
+
+form {
+    width: 100%; /* Đảm bảo form chiếm toàn bộ chiều rộng */
+}

@@ -51,17 +51,25 @@ exports.CreateNewUser = catchAsyncErrors(async (req, res) => {
 });
 
 
-exports.FindUserbyUserMail = catchAsyncErrors(async (req, res) => {
+exports.FindUserbyUserId = catchAsyncErrors(async (req, res) => {
     try {
         //Check mail từ người dùng nhập
-        const UserMail = req.params.email;
-        //TÌm kiếm người dùng qua email
-        const users = await User.findOne({email: UserMail});
-        //Kiểm tra người dùng có tồn tại hay không
+        const { id } = req.params;
+
+        // Validate the format of the ID
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: 'Invalid user ID format.' });
+        }
+        // Check phân quyền
+        // if (req.user.role !== 'admin' && req.user.id !== id) {
+        //     return res.status(403).json({ success: false, message: 'Access denied.' });
+        // }
+        // Find the user by ID
+        const users = await User.findById(id).select('-password'); // Exclude the password field
         if (!users) {
             return res.status(404).json({ message: 'User not found' });
         }
-        res.status(200).json(users);
+        res.status(200).json({ success: true, data: users });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -85,11 +85,14 @@ exports.CreateProduct = catchAsyncErrors(async (req, res, next) => {
 exports.UpdateProduct = catchAsyncErrors(async (req, res) => {
     try {
         const updatedProduct = await Product.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true, runValidators: true }
+            req.params.id, //Id của Product
+            req.body,  //dữ liệu của đối tượng Product
+            {   new: true, //trả về dữ liệu được cập nhật 
+                runValidators: true 
+            }
         ).populate('category');
 
+        //Kiểm tra dữ liệu có vấn đề gì không
         if (!updatedProduct) {
             return res.status(404).json({ message: 'Product not found' });
         }

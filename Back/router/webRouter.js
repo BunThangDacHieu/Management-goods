@@ -23,6 +23,11 @@ router.route('/category')
       .get(CategoryController.GetAllCategory)
       .post(CategoryController.CreateCategory);
 
+router.route('/category/:id')
+      .get(CategoryController.getCategorybyId)
+      .put(CategoryController.UpdateCategory)
+      .delete(CategoryController.DeleteCategory);
+
 
 /-User-/
 router.route('/user')

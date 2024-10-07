@@ -31,12 +31,23 @@ router.route('/category/:id')
 
 /-User-/
 router.route('/user')
-      .get(UserController.GetAllUser);
+      .get(UserController.GetAllUser)
+      .post(UserController.CreateNewUser);
+
+router.route('/user/:id')
+      .get(UserController.FindUserbyUserId)
+      .put(UserController.UpdateUserInfomation)
+      .delete(UserController.DeleteUserById);
 
 /-warehouse-/
 router.route('/warehouse')
       .get(WarehouseController.GetAllWareHouse)
       .post(WarehouseController.CreateWareHouse);
+
+router.route('/warehouse/:id')
+      .get(WarehouseController.getWareHousebyId)
+      .put(WarehouseController.UpdateWareHouse)
+      .delete(WarehouseController.DeleteWareHouse);
 
 
 /-supplier-/
@@ -45,9 +56,19 @@ router.route('/supplier')
       .get(SupplierController.GetAllSupplier)
       .post(SupplierController.CreateSupplier);
 
+router.route('/supplier/:id')
+      .get(SupplierController.getSupplierbyId)
+      .put(SupplierController.UpdateSupplierInformation)
+      .delete(SupplierController.DeleteSupplierbyId);
+
 /-Orders-/
 router.route('/order')
-      .get(OrderController.GetAllOrder);
+      .get(OrderController.GetAllOrder)
+      .post(OrderController.CreateOrder);
 
+router.route('/order/:id')
+      .get(OrderController.GetOrderById)
+      .put(OrderController.UpdateOrder)
+      .delete(OrderController.DeleteOrder);
 
 module.exports = router

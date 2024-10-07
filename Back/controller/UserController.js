@@ -64,7 +64,7 @@ exports.FindUserbyUserId = catchAsyncErrors(async (req, res) => {
         // if (req.user.role !== 'admin' && req.user.id !== id) {
         //     return res.status(403).json({ success: false, message: 'Access denied.' });
         // }
-        // Find the user by ID
+        // Tìm người dùng qua ID
         const users = await User.findById(id).select('-password'); // Exclude the password field
         if (!users) {
             return res.status(404).json({ message: 'User not found' });
@@ -77,9 +77,9 @@ exports.FindUserbyUserId = catchAsyncErrors(async (req, res) => {
 //Cập nhật Người 
 exports.UpdateUserInfomation = catchAsyncErrors(async (req, res) =>{
     try {
-        const {email} = req.params;
+        const {id} = req.params;
 
-        if (!email) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ message: "Email yêu cầu bắt buộc." });
         }
         if (
@@ -94,7 +94,7 @@ exports.UpdateUserInfomation = catchAsyncErrors(async (req, res) =>{
         }
 
         const updatedUser = await User.findOneAndUpdate(
-            { email },
+            id,
             UpdateData,
             { new: true, runValidators: true }
         );

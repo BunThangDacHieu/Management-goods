@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
-    username: {
+    name: {
         type: String,
         required: true,
         unique: true //tên ng dùng là duy nhất
@@ -15,16 +15,12 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-
     //Chia vị trí trong dự án
     role:{
         type: String,
         enum: ['manager', 'employee', 'admin'],
         default: 'employee'
-    },
-    name: {
-        type: String
-    },
+    }
 }, 
     { 
         timestamps: true 

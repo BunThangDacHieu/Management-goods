@@ -1,13 +1,11 @@
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import Header from '../components/Header';
 import '../css/Login.css'
 
 export default function Login() {
   return (
     <div>
-<Header />
     
     <div className="login-container">
       

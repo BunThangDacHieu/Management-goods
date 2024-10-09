@@ -56,7 +56,7 @@ exports.GetOrderById = catchAsyncErrors(async (req, res, next) => {
             return res.status(400).json({ message: 'ID đơn hàng không hợp lệ.' });
         }
 
-        const order = await Order.findById(id);
+        const order = await Order.findById(id).populate('supplier');
         if (!order) {
             return res.status(404).json({ message: 'Không tìm thấy đơn hàng.' });
         }

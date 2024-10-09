@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const ConnectDB = require('./config/db'); 
 const routerController = require('./router/webRouter'); 
+const cors = require('cors');
 
 //database
 ConnectDB({
@@ -15,6 +16,14 @@ const app = express();
 const port = process.env.PORT || 9999;
 
 app.set('view engine', 'ejs');
+
+app.use(cors());
+
+app.use(
+    cors({
+        origin: 'http://localhost:3000'
+    })
+)
 
 // Middleware
 app.use(express.json()); 

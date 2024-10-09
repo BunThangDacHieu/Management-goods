@@ -28,7 +28,6 @@ router.route('/category/:id')
       .put(CategoryController.UpdateCategory)
       .delete(CategoryController.DeleteCategory);
 
-
 /-User-/
 router.route('/user')
       .get(UserController.GetAllUser)

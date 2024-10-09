@@ -1,12 +1,11 @@
 import React from 'react';
-import Header from '../components/Header';
 import ControlledCarousel from '../components/ControlledCarousel'; 
+import Sidebar from '../components/ResponsiveSidebar';
 export default function Homepage() {
   return (
     <div>
-      <Header />
-      <ControlledCarousel />
-      
+
+      {/* <ControlledCarousel /> */}
     </div>
   );
 }

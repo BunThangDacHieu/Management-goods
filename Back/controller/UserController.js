@@ -2,9 +2,38 @@ const express = require('express');
 const router = express.Router();
 const catchAsyncErrors = require('../middleware/catchAsyncErrors');
 const User = require('../model/user');
+const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 
 
-//-------------Các method chuyền đến server đối với User---------------/
+//-------------Hệ thống đăng nhập và đăng ký người dùng---------------/
+exports.UserLogin = catchAsyncErrors(async (req, res, next) => {
+    try {
+        //Nhập thông tin dữ liệu
+        const {name, password, email} = req.body;
+        //Xác nhận thông tin được nhập
+        if(!name || !password || !email) {
+            res.status(500).json({message: 'Vui long nhap day du thong tin'})
+        }
+        //Kiểm tra xem người dùng đã tồn tại trong hệ thống hay chưa
+        const existUser = await User.findOne({ email: req.body.email });
+        if(!existUser) {
+            res.status(500).json({message: 'Account already Exits'})
+        }
+        const user = await User.create({
+            name,
+            password,
+            email,
+            role: 'employee'
+        })
+    } catch (error) {
+        console.log("Hệ thống có vấn đề, đấiđáiai");
+        res.status(500).json({message: error.message})
+    }
+})
+
+
+//------Các method chuyền đến server đối với User/ Hệ thống quản lý người dùng-------//
 exports.GetAllUser = catchAsyncErrors(async (req, res) => {
     try {
         const users = await User.find();
@@ -27,13 +56,13 @@ exports.CreateNewUser = catchAsyncErrors(async (req, res) => {
         const newUser = new User({
             email: req.body.email,
             // UserName: req.body.UserName,
-            username: req.body.username,
+            password: req.body.password,
             name: req.body.name,
             role: req.body.role || 'employee'
         });
 
         // Đặt mật khẩu cho người dùng
-        await newUser.setPassword(req.body.password);
+        // await newUser.setPassword(req.body.password);
 
         // Lưu người dùng mới vào cơ sở dữ liệu
         const user = await newUser.save();
@@ -61,9 +90,9 @@ exports.FindUserbyUserId = catchAsyncErrors(async (req, res) => {
             return res.status(400).json({ message: 'Invalid user ID format.' });
         }
         // Check phân quyền
-        // if (req.user.role !== 'admin' && req.user.id !== id) {
-        //     return res.status(403).json({ success: false, message: 'Access denied.' });
-        // }
+        if (req.user.role !== 'admin' && req.user.id !== id && req.user.role !=='manager') {
+            return res.status(403).json({ success: false, message: 'Access denied.' });
+        }
         // Tìm người dùng qua ID
         const users = await User.findById(id).select('-password'); // Exclude the password field
         if (!users) {
@@ -89,6 +118,7 @@ exports.UpdateUserInfomation = catchAsyncErrors(async (req, res) =>{
                 });
             }
         const UpdateData = {
+            name: req.body.name,
             email: req.body.mail,
             password: req.body.password
         }

@@ -30,6 +30,8 @@ const ProductSchema = new mongoose.Schema({
     description: {
         type: String
     },
+    //Nhập hàng
+
     sku: { //mã duy nhất cho sản phẩm / Stock Keping unit
         type: String,
         unique: true

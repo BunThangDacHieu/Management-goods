@@ -26,6 +26,14 @@ const OrderSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    importDate: { // Ngày đặt đơn hàng
+        type: Date,
+        default: Date.now
+    },
+    exportDate: {
+        type: Date,
+        default: Date.now
+    },
     status: { // Trạng thái đơn hàng
         type: String,
         enum: ['đang chờ', 'Đang xử lý', 'Đang giao', 'Đã giao', 'Hủy bỏ'],
@@ -38,6 +46,10 @@ const OrderSchema = new mongoose.Schema({
     shippingAddress: { // Địa chỉ giao hàng
         type: String,
         required: true
+    },
+    supplier: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Supplier'
     }
 }, 
     {

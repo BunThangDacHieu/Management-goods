@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Nav } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
-import { List, X, LayoutDashboard, Table, User, BarChart2, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
+import { List, X, LayoutDashboard, Table, User, BarChart2, AlertTriangle, ChevronDown, ChevronUp, ShoppingBag, AlignCenter } from 'lucide-react';
+import Logo from '../Image/image.png';
 import '../css/Sidebar.css';
 
 const NavItem = ({ icon, children, to, subItems }) => {
@@ -50,22 +51,45 @@ const Sidebar = () => {
         <button className="toggle-btn" onClick={toggleSidebar}>
           {expanded ? <X size={24} /> : <List size={24} />}
         </button>
-        <span className="sidebar-title">Sidebar</span>
+        <span className="sidebar-title">
+        <img src={Logo} alt="Logo" className="sidebar-logo" />
+        </span>
       </div>
 
       <Nav className="flex-column sidebar-content">
-        <NavItem icon={<LayoutDashboard size={20} />} to="/">Dashboard</NavItem>
-        <NavItem icon={<Table size={20} />} to="/tables">Tables</NavItem>
-        <NavItem 
-          icon={<User size={20} />} 
+        <NavItem icon={<LayoutDashboard size={20} />} to="/">Vận Chuyển</NavItem>
+        <NavItem className = "justify-content-center align-items-center"
+          style={{display: 'flex', alignItems: 'center'}}
+          icon={<ShoppingBag  size={20} />} 
           subItems={[
-            { to: "/profile", label: "View Profile", icon: <User size={16} /> },
-            { to: "/settings", label: "Settings", icon: <BarChart2 size={16} /> }
+            { to: "/", label: "Danh sách sản phẩm" },
+            { to: "/", label: "Quản lý kho" },
+            { to: "/", label: "Đặt hàng nhập"},
+            { to: "/", label: "Nhập hàng"},
+            { to: "/", label: "Kiểm hàng" },
+            { to: "/", label: "Chuyển hàng" },
+            { to: "/", label: "Nhà Cung cấp" },
+            { to: "/", label: "Điều chỉnh giá vốn" }
           ]}
         >
-          User
+          Sản Phẩm
         </NavItem>
-        <NavItem icon={<BarChart2 size={20} />} to="/analytics">Analytics</NavItem>
+        <NavItem className = "justify-content-center align-items-center"
+          style={{display: 'flex', AlignCenter: 'center'}}
+          icon={<User   size={20} />} 
+          subItems={[
+            { to: "/", label: "Danh sách sản phẩm" },
+            { to: "/", label: "Quản lý kho" },
+            { to: "/", label: "Đặt hàng nhập"},
+            { to: "/", label: "Nhập hàng"},
+            { to: "/", label: "Kiểm hàng" },
+            { to: "/", label: "Chuyển hàng" },
+            { to: "/", label: "Nhà Cung cấp" },
+            { to: "/", label: "Điều chỉnh giá vốn" }
+          ]}
+        >
+          Sản Phẩm
+        </NavItem>
         <NavItem icon={<AlertTriangle size={20} />} to="/hero404">404 page</NavItem>
       </Nav>
 

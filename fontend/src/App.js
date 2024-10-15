@@ -1,3 +1,4 @@
+// App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Container, Row, Col } from 'react-bootstrap';
@@ -6,6 +7,8 @@ import Homepage from './page/Homepage';
 import Login from './page/Login';
 import Error from './page/Error';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import ListProduct from './page/ListProduct';
+// Import other necessary pages
 
 function App() {
   return (
@@ -15,12 +18,14 @@ function App() {
           <Col xs="auto">
             <Sidebar />
           </Col>
-          <Col className="p-3 flex-grow-1" style={{backgroundColor: 'green'}}>
+          <Col className="p-3 flex-grow-1" style={{ backgroundColor: 'green' }}>
             <Routes>
-              <Route path="/" element={<Homepage />} />
+              <Route path="/" element={<ListProduct />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/user-list" />
+              <Route path="/user-settings" />
+              {/* Add other routes corresponding to sub-items */}
               <Route path="*" element={<Error />} />
-              {/* Thêm các routes khác tại đây */}
             </Routes>
           </Col>
         </Row>

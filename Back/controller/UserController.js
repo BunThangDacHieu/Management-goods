@@ -4,13 +4,19 @@ const catchAsyncErrors = require('../middleware/catchAsyncErrors');
 const User = require('../model/user');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const generateToken = require('../utils/jwtToken')
 
 
 //-------------Hệ thống đăng nhập và đăng ký người dùng---------------/
-exports.UserLogin = catchAsyncErrors(async (req, res, next) => {
+
+
+
+
+//Đăng nhập người dùng
+exports.Login = catchAsyncErrors(async (req, res, next) => {
     try {
         //Nhập thông tin dữ liệu
-        const {name, password, email} = req.body;
+        const {password, email, role} = req.body;
         //Xác nhận thông tin được nhập
         if(!name || !password || !email) {
             res.status(500).json({message: 'Vui long nhap day du thong tin'})
@@ -20,12 +26,14 @@ exports.UserLogin = catchAsyncErrors(async (req, res, next) => {
         if(!existUser) {
             res.status(500).json({message: 'Account already Exits'})
         }
+
         const user = await User.create({
             name,
             password,
             email,
             role: 'employee'
         })
+        generateToken(user, "User Registered!", 200, res);
     } catch (error) {
         console.log("Hệ thống có vấn đề, đấiđáiai");
         res.status(500).json({message: error.message})

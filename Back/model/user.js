@@ -27,6 +27,13 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: [true, "User Role Required"],
         enum: ['Manager', 'Employee', 'Supplier'],
+    },
+    supplier: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Supplier',
+        required: function() {
+            return this.role === 'Supplier';
+        }
     }
 }, 
     { 

@@ -12,18 +12,100 @@ const ErrorHandler = require('../middleware/error')
 
 
 
-//Đăng ký người dùng
-exports.Register = catchAsyncErrors(async(req, res, next) =>{
-    
+//Đăng ký nhân viên(Employee)
+exports.RegisterEmployee = catchAsyncErrors(async(req, res, next) =>{
+    try {
+        const { name, email, password, confirmPassword } = req.body;
+
+    // Kiểm tra thông tin cơ bản
+    if (!name || !email || !password || !confirmPassword) {
+        return next(new ErrorHandler("Nhập thông tin đầy đủ", 400));
+    }
+
+    // Kiểm tra mật khẩu khớp
+    if (password !== confirmPassword) {
+        return next(new ErrorHandler("Mật khẩu không khớp", 400));
+    }
+
+    // Kiểm tra xem email đã tồn tại chưa
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+        return next(new ErrorHandler("Email đã được sử dụng", 400));
+    }
+
+    // Tạo tài liệu User với vai trò Employee
+    const user = await User.create({
+        name,
+        email,
+        password,
+        role: 'Employee' // Mặc định là Employee
+    });
+
+    // Gửi phản hồi với token
+    generateToken(user, "Đăng ký thành công", 201, res);
+    } catch (error) {
+        next(error) 
+    }
+})
+
+//Đăng ký người cung hàng(Supplier)
+exports.RegisterSupplier = catchAsyncErrors(async(req, res, next) =>{
+    try {
+        const { name, email, password, confirmPassword, supplierData } = req.body;
+
+    // Kiểm tra thông tin cơ bản
+    if (!name || !email || !password || !confirmPassword || !supplierData) {
+        return next(new ErrorHandler("Nhập thông tin đầy đủ", 400));
+    }
+
+    // Kiểm tra mật khẩu khớp
+    if (password !== confirmPassword) {
+        return next(new ErrorHandler("Mật khẩu không khớp", 400));
+    }
+
+    // Kiểm tra xem email đã tồn tại chưa
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+        return next(new ErrorHandler("Email đã được sử dụng", 400));
+    }
+
+    // Kiểm tra xem email nhà cung cấp đã tồn tại chưa
+    const existingSupplier = await Supplier.findOne({ contactEmail: supplierData.contactEmail });
+    if (existingSupplier) {
+        return next(new ErrorHandler("Email nhà cung cấp đã tồn tại", 400));
+    }
+
+    // Tạo tài liệu Supplier
+    const supplier = await Supplier.create({
+        name: supplierData.name,
+        address: supplierData.address,
+        contactEmail: supplierData.contactEmail,
+        contactPhone: supplierData.contactPhone
+    });
+
+    // Tạo tài liệu User với vai trò Supplier và liên kết với Supplier
+    const user = await User.create({
+        name,
+        email,
+        password,
+        role: 'Supplier',
+        supplier: supplier._id
+    });
+
+    // Gửi phản hồi với token
+    generateToken(user, "Đăng ký nhà cung cấp thành công", 201, res);
+    } catch (error) {
+        next(error)
+    }
 })
 
 //Đăng nhập người dùng
 exports.Login = catchAsyncErrors(async (req, res, next) => {
     try {
         //Nhập thông tin dữ liệu
-        const { password, email, role, confirmPassword } = req.body;
+        const { password, email, confirmPassword } = req.body;
         //Xác nhận thông tin được nhập
-        if(!password || !email ||!role ||!confirmPassword) {
+        if(!password || !email ||!confirmPassword) {
             return next(new ErrorHandler("Nhập thông tin đầy đủ", 400));
         }
         if(password !== confirmPassword){
@@ -40,10 +122,6 @@ exports.Login = catchAsyncErrors(async (req, res, next) => {
             if (!isPasswordMatch) {
                 return next(new ErrorHandler("Sai Email hoặc Password!", 400));
             }
-
-        if (role !== user.role) {
-            return next(new ErrorHandler(`Người dùng không có quyền truy cập!`, 400));
-        }
         generateToken(user, "Đăng nhập thành công", 201, res);
     } catch (error) {
         console.log("Hệ thống có vấn đề, đấiđáiai");

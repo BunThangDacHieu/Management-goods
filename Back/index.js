@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const ConnectDB = require('./config/db'); 
 const routerController = require('./router/webRouter'); 
 const cors = require('cors');
+const { errorMiddleware } = require('./middleware/error');
 
 //database
 ConnectDB({
@@ -30,7 +31,6 @@ app.use(express.json());
 app.use(morgan('dev'));
 app.use(helmet());     
 
-
 // Các Luồng dữ liệu
 app.use('/', routerController);
 
@@ -51,6 +51,6 @@ app.use((err, req, res, next) => {
 app.use((req, res) => {
     res.status(404).json({ message: 'Page not found' });
 });
-
+app.use(errorMiddleware);
 //server
 app.listen(port, () => console.log(`Listening on port ${port}`));

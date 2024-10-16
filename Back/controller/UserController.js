@@ -5,35 +5,46 @@ const User = require('../model/user');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const generateToken = require('../utils/jwtToken')
-
+const ErrorHandler = require('../middleware/error')
 
 //-------------Hệ thống đăng nhập và đăng ký người dùng---------------/
 
 
 
 
+//Đăng ký người dùng
+exports.Register = catchAsyncErrors(async(req, res, next) =>{
+    
+})
+
 //Đăng nhập người dùng
 exports.Login = catchAsyncErrors(async (req, res, next) => {
     try {
         //Nhập thông tin dữ liệu
-        const {password, email, role} = req.body;
+        const { password, email, role, confirmPassword } = req.body;
         //Xác nhận thông tin được nhập
-        if(!name || !password || !email) {
-            res.status(500).json({message: 'Vui long nhap day du thong tin'})
+        if(!password || !email ||!role ||!confirmPassword) {
+            return next(new ErrorHandler("Nhập thông tin đầy đủ", 400));
+        }
+        if(password !== confirmPassword){
+            return next(
+                new ErrorHandler("Mật khẩu không khớp", 400)
+            )
+        }
+        const user = await User.findOne({ email }).select("+password");
+        if (!user) {
+            return next(new ErrorHandler("Sai mật khẩu hoặc email", 400));
         }
         //Kiểm tra xem người dùng đã tồn tại trong hệ thống hay chưa
-        const existUser = await User.findOne({ email: req.body.email });
-        if(!existUser) {
-            res.status(500).json({message: 'Account already Exits'})
-        }
+        const isPasswordMatch = await user.comparePassword(password);
+            if (!isPasswordMatch) {
+                return next(new ErrorHandler("Sai Email hoặc Password!", 400));
+            }
 
-        const user = await User.create({
-            name,
-            password,
-            email,
-            role: 'employee'
-        })
-        generateToken(user, "User Registered!", 200, res);
+        if (role !== user.role) {
+            return next(new ErrorHandler(`Người dùng không có quyền truy cập!`, 400));
+        }
+        generateToken(user, "Đăng nhập thành công", 201, res);
     } catch (error) {
         console.log("Hệ thống có vấn đề, đấiđáiai");
         res.status(500).json({message: error.message})

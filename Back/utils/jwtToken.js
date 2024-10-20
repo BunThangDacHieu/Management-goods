@@ -3,8 +3,8 @@ const generateToken = (user, message, statusCode, res) => {
     // Determine the cookie name based on the user's role
     let cookieName;
     switch (user.role) {
-        case 'Admin':
-            cookieName = 'adminToken';
+        case 'Supplier':
+            cookieName = 'supplierToken';
             break;
         case 'Manager':
             cookieName = 'managerToken';

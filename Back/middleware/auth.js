@@ -1,7 +1,7 @@
-import { User } from "../models/userSchema.js";
-import { catchAsyncErrors } from "./catchAsyncErrors.js";
-import ErrorHandler from "./error.js";
-import jwt from "jsonwebtoken";
+const User = require('../model/user.js')
+const catchAsyncErrors = require('./catchAsyncErrors.js')
+const ErrorHandler = require('./error.js')
+const jwt = require('jsonwebtoken')
 
 
 //protect routes - authenticate token for all users
@@ -98,7 +98,7 @@ exports.isSupplierAuthenticated = catchAsyncErrors(
 );
 
 // Middleware vai trò được xác nhận từ hệ thoogns Manager, Employee, Supplier
-export const isAuthorized = (...roles) => {
+exports.isAuthorized = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
       return next(new ErrorHandler(`${req.user.role} Không có quyền đăng nhập vào hệ thống này`, 403));

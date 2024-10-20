@@ -6,7 +6,7 @@ const UserController = require('../controller/UserController');
 const WarehouseController = require('../controller/WareHouse');
 const SupplierController = require('../controller/SupplierController');
 const OrderController = require('../controller/OrderController');
-const {protect ,isAdminAuthenticated, isSupplierAuthenticated, isAuthorized} = require('../middleware/auth')
+const {protect ,isAdminAuthenticated, isSupplierAuthenticated, isAuthorized} = require('../middleware/auth');
 
 /-Products--/
 // Chỉ Employee hoặc Manager có thể quản lý sản phẩm
@@ -56,6 +56,15 @@ router.route('/warehouse/:id')
 router.route('/supplier')
       .get(protect, isSupplierAuthenticated, SupplierController.GetAllSupplier)
       .post(SupplierController.CreateSupplier); //// Đăng ký không cần authentication
+      /*
+      //Phần dưới là để kiểm tra Postman
+      {
+      "name": "Nhà Cung Cấp A",
+      "password": "matkhau123",
+      "address": "123 Đường ABC, Thành Phố XYZ",
+      "contactEmail": "supplierA@example.com",
+      "contactPhone": "0912345678"
+      } */
 
 router.route('/supplier/:id')
       .get(protect, isSupplierAuthenticated,SupplierController.getSupplierbyId)

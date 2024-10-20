@@ -15,15 +15,17 @@ const generateToken = (user, message, statusCode, res) => {
         default:
             cookieName = 'token';
     }
-  
+    const cookieExpire = process.env.COOKIE_EXPIRE || 7;
     res
+    
       .status(statusCode)
       .cookie(cookieName, token, {
         expires: new Date(
-          Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+          
+          Date.now() + cookieExpire * 24 * 60 * 60 * 1000
         ),
         httpOnly: true,
-        secure: process.env.NODE_ENV,
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
       })
       .json({

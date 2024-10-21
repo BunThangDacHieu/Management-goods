@@ -46,8 +46,8 @@ router.route('/category/:id')
 // Chỉ Manager có quyền quản lý người dùng
 /-User-/
 router.route('/user')
-      .get(protect, isAdminAuthenticated, isAuthorized('Manager'),UserController.GetAllUser)
-      .post(protect, isAdminAuthenticated, isAuthorized('Manager') ,UserController.CreateNewUser);
+      .get(protect, isAdminAuthenticated, isAuthorized('Manager'),UserController.GetAllUser);
+      // .post(protect, isAdminAuthenticated, isAuthorized('Manager') ,UserController.CreateNewUser);
 
 router.route('/user/:id')
       .get(protect, isAdminAuthenticated, isAuthorized('Manager'),UserController.FindUserbyUserId)

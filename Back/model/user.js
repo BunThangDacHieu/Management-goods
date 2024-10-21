@@ -28,6 +28,7 @@ const UserSchema = new mongoose.Schema({
         required: [true, "User Role Required"],
         enum: ['Manager', 'Employee', 'Supplier'],
     },
+    username: { type: String, unique: true, sparse: true },
     supplier: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Supplier',
@@ -49,6 +50,8 @@ UserSchema.pre("save", async function(next) {
 })
 //So sánh mật khẩu
 UserSchema.methods.comparePassword = async function (enteredPassword) {
+    console.log('Mật khẩu nhập vào:', enteredPassword);
+    console.log('Mật khẩu đã lưu:', this.password);
     return await bcrypt.compare(enteredPassword, this.password);
 };
 // Phương thức tạo JWT

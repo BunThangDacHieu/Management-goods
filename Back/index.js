@@ -6,6 +6,7 @@ const ConnectDB = require('./config/db');
 const routerController = require('./router/webRouter'); 
 const cors = require('cors');
 const { errorMiddleware } = require('./middleware/error');
+const cookieParser = require('cookie-parser');
 
 //database
 ConnectDB({
@@ -20,17 +21,16 @@ app.set('view engine', 'ejs');
 
 app.use(cors());
 
-app.use(
-    cors({
-        origin: 'http://localhost:3000'
-    })
-)
+app.use(cors({
+    origin: 'http://localhost:3000', // Chỉ định nguồn hợp lệ
+    credentials: true // Nếu bạn cần hỗ trợ cookie
+}));
 
 // Middleware
 app.use(express.json()); 
 app.use(morgan('dev'));
 app.use(helmet());     
-
+app.use(cookieParser());
 // Các Luồng dữ liệu
 app.use('/', routerController);
 

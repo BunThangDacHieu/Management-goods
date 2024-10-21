@@ -5,11 +5,78 @@ const User = require('../model/user');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const generateToken = require('../utils/jwtToken')
-const ErrorHandler = require('../middleware/error')
+const {ErrorHandler} = require('../middleware/error')
+const Supplier = require('../model/supplier')
 
 //-------------Hệ thống đăng nhập và đăng ký người dùng---------------/
 
+// Đăng ký quản lý (Manager)
+exports.RegisterManager = catchAsyncErrors(async (req, res, next) => {
+    try {
+        const { name, email, password, confirmPassword } = req.body;
 
+        // Kiểm tra thông tin cơ bản
+        if (!name || !email || !password || !confirmPassword) {
+            return next(new ErrorHandler("Nhập thông tin đầy đủ", 400));
+        }
+
+        // Kiểm tra mật khẩu khớp
+        if (password !== confirmPassword) {
+            return next(new ErrorHandler("Mật khẩu không khớp", 400));
+        }
+
+        // Kiểm tra xem email đã tồn tại chưa
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return next(new ErrorHandler("Email đã được sử dụng", 400));
+        }
+
+        // Tạo tài liệu User với vai trò Manager
+        const user = await User.create({
+            name,
+            email,
+            password,
+            role: 'Manager' // Mặc định là Manager
+        });
+
+        // Gửi phản hồi với token
+        generateToken(user, "Đăng ký thành công", 201, res);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Đăng nhập người quản lý (Manager)
+exports.ManagerLogin = catchAsyncErrors(async (req, res, next) => {
+    try {
+        // Nhập thông tin dữ liệu
+        const { password, email } = req.body; // Sử dụng email từ request
+
+        // Xác nhận thông tin được nhập
+        if (!password || !email) {
+            return next(new ErrorHandler("Nhập thông tin đầy đủ", 400));
+        }
+
+        // Tìm người dùng theo email
+        const user = await User.findOne({ email, role: 'Manager' }).select("+password");
+
+        if (!user) {
+            return next(new ErrorHandler("Sai mật khẩu hoặc email", 400));
+        }
+
+        // Kiểm tra xem người dùng đã tồn tại trong hệ thống hay chưa
+        const isPasswordMatch = await user.comparePassword(password);
+        if (!isPasswordMatch) {
+            return next(new ErrorHandler("Sai Email hoặc Password!", 400));
+        }
+
+        // Gửi phản hồi với token
+        generateToken(user, "Đăng nhập thành công", 200, res);
+    } catch (error) {
+        console.log("Hệ thống có vấn đề, hãy kiểm tra lại");
+        res.status(500).json({ message: error.message });
+    }
+});
 
 
 //Đăng ký nhân viên(Employee)
@@ -51,10 +118,10 @@ exports.RegisterEmployee = catchAsyncErrors(async(req, res, next) =>{
 //Đăng ký người cung hàng(Supplier)
 exports.RegisterSupplier = catchAsyncErrors(async(req, res, next) =>{
     try {
-        const { name, email, password, confirmPassword, supplierData } = req.body;
+        const { name, address, contactEmail, password, confirmPassword, contactPhone } = req.body;
 
     // Kiểm tra thông tin cơ bản
-    if (!name || !email || !password || !confirmPassword || !supplierData) {
+    if (!name || !contactEmail || !password || !confirmPassword) {
         return next(new ErrorHandler("Nhập thông tin đầy đủ", 400));
     }
 
@@ -64,29 +131,30 @@ exports.RegisterSupplier = catchAsyncErrors(async(req, res, next) =>{
     }
 
     // Kiểm tra xem email đã tồn tại chưa
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: contactEmail });
     if (existingUser) {
         return next(new ErrorHandler("Email đã được sử dụng", 400));
     }
 
     // Kiểm tra xem email nhà cung cấp đã tồn tại chưa
-    const existingSupplier = await Supplier.findOne({ contactEmail: supplierData.contactEmail });
+    const existingSupplier = await Supplier.findOne({ contactEmail });
     if (existingSupplier) {
         return next(new ErrorHandler("Email nhà cung cấp đã tồn tại", 400));
     }
 
     // Tạo tài liệu Supplier
     const supplier = await Supplier.create({
-        name: supplierData.name,
-        address: supplierData.address,
-        contactEmail: supplierData.contactEmail,
-        contactPhone: supplierData.contactPhone
+        name,
+        address,
+        password,
+        contactEmail,
+        contactPhone,
     });
 
     // Tạo tài liệu User với vai trò Supplier và liên kết với Supplier
     const user = await User.create({
         name,
-        email,
+        email: contactEmail,
         password,
         role: 'Supplier',
         supplier: supplier._id
@@ -99,35 +167,42 @@ exports.RegisterSupplier = catchAsyncErrors(async(req, res, next) =>{
     }
 })
 
-//Đăng nhập người dùng
+// Đăng nhập người dùng
 exports.Login = catchAsyncErrors(async (req, res, next) => {
     try {
-        //Nhập thông tin dữ liệu
-        const { password, email, confirmPassword } = req.body;
-        //Xác nhận thông tin được nhập
-        if(!password || !email ||!confirmPassword) {
+        // Nhập thông tin dữ liệu
+        const { password, contactEmail } = req.body; // Sử dụng contactEmail từ request
+
+        // Xác nhận thông tin được nhập
+        if (!password || !contactEmail) {
             return next(new ErrorHandler("Nhập thông tin đầy đủ", 400));
         }
-        if(password !== confirmPassword){
-            return next(
-                new ErrorHandler("Mật khẩu không khớp", 400)
-            )
-        }
-        const user = await User.findOne({ email }).select("+password");
+
+        // Tìm người dùng theo email hoặc contactEmail
+        const user = await User.findOne({
+            $or: [
+                { email: contactEmail }, // Tìm theo email
+                { supplier: { $exists: true }, contactEmail } // Tìm theo contactEmail của nhà cung cấp
+            ]
+        }).select("+password");
+
         if (!user) {
             return next(new ErrorHandler("Sai mật khẩu hoặc email", 400));
         }
-        //Kiểm tra xem người dùng đã tồn tại trong hệ thống hay chưa
+
+        // Kiểm tra xem người dùng đã tồn tại trong hệ thống hay chưa
         const isPasswordMatch = await user.comparePassword(password);
-            if (!isPasswordMatch) {
-                return next(new ErrorHandler("Sai Email hoặc Password!", 400));
-            }
-        generateToken(user, "Đăng nhập thành công", 201, res);
+        if (!isPasswordMatch) {
+            return next(new ErrorHandler("Sai Email hoặc Password!", 400));
+        }
+
+        // Gửi phản hồi với token
+        generateToken(user, "Đăng nhập thành công", 200, res);
     } catch (error) {
-        console.log("Hệ thống có vấn đề, đấiđáiai");
-        res.status(500).json({message: error.message})
+        console.log("Hệ thống có vấn đề, hãy kiểm tra lại");
+        res.status(500).json({ message: error.message });
     }
-})
+});
 
 
 //------Các method chuyền đến server đối với User/ Hệ thống quản lý người dùng-------//

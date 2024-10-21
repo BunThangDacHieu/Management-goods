@@ -15,7 +15,7 @@ const UserSchema = new mongoose.Schema({
         required: true,
         unique: true,
         validate: [validator.isEmail, "Provide A Valid Email!"],
-    },
+    },  
     password: {
         type: String,
         required: [true, "Password is required"],
@@ -48,9 +48,9 @@ UserSchema.pre("save", async function(next) {
     this.password = await bcrypt.hash(this.password, 10);
 })
 //So sánh mật khẩu
-UserSchema.methods.comparePassword = async function(enteredPassword){
+UserSchema.methods.comparePassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
-}
+};
 // Phương thức tạo JWT
 UserSchema.methods.generateJsonWebToken = function(){
     return jwt.sign({ id: this._id }, process.env.JWT_SECRET_KEY, {

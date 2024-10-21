@@ -8,6 +8,20 @@ const SupplierController = require('../controller/SupplierController');
 const OrderController = require('../controller/OrderController');
 const {protect ,isAdminAuthenticated, isSupplierAuthenticated, isAuthorized} = require('../middleware/auth');
 
+// Route đăng ký cho quản lý
+router.post('/register/manager', UserController.RegisterManager);
+
+// Route đăng nhập cho quản lý
+router.post('/login/manager', UserController.ManagerLogin);
+
+// Route đăng nhập chung
+router.route('/login').post(UserController.Login);
+
+// Route đăng ký cho nhân viên
+router.route('/register/employee').post(UserController.RegisterEmployee);
+
+// Route đăng ký cho nhà cung cấp
+router.route('/register/supplier').post(UserController.RegisterSupplier);
 /-Products--/
 // Chỉ Employee hoặc Manager có thể quản lý sản phẩm
 router.route('/products') 
@@ -56,15 +70,6 @@ router.route('/warehouse/:id')
 router.route('/supplier')
       .get(protect, isSupplierAuthenticated, SupplierController.GetAllSupplier)
       .post(SupplierController.CreateSupplier); //// Đăng ký không cần authentication
-      /*
-      //Phần dưới là để kiểm tra Postman
-      {
-      "name": "Nhà Cung Cấp A",
-      "password": "matkhau123",
-      "address": "123 Đường ABC, Thành Phố XYZ",
-      "contactEmail": "supplierA@example.com",
-      "contactPhone": "0912345678"
-      } */
 
 router.route('/supplier/:id')
       .get(protect, isSupplierAuthenticated,SupplierController.getSupplierbyId)

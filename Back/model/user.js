@@ -15,7 +15,7 @@ const UserSchema = new mongoose.Schema({
         required: true,
         unique: true,
         validate: [validator.isEmail, "Provide A Valid Email!"],
-    },
+    },  
     password: {
         type: String,
         required: [true, "Password is required"],
@@ -28,6 +28,7 @@ const UserSchema = new mongoose.Schema({
         required: [true, "User Role Required"],
         enum: ['Manager', 'Employee', 'Supplier'],
     },
+    username: { type: String, unique: true, sparse: true },
     supplier: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Supplier',
@@ -42,15 +43,19 @@ const UserSchema = new mongoose.Schema({
 )
 //Middleware để hash mật khẩu trước khi lưu
 UserSchema.pre("save", async function(next) {
-    if(this.isModified("password")){
-        next();
+    if (!this.isModified("password")) {
+        return next(); // Nếu không thay đổi mật khẩu, tiếp tục
     }
-    this.password = await bcrypt.hash(this.password, 10);
-})
+    this.password = await bcrypt.hash(this.password, 10); // Hash mật khẩu
+    next(); // Gọi next sau khi hash
+});
+
 //So sánh mật khẩu
-UserSchema.methods.comparePassword = async function(enteredPassword){
+UserSchema.methods.comparePassword = async function (enteredPassword) {
+    console.log('Mật khẩu nhập vào:', enteredPassword);
+    console.log('Mật khẩu đã lưu:', this.password);
     return await bcrypt.compare(enteredPassword, this.password);
-}
+};
 // Phương thức tạo JWT
 UserSchema.methods.generateJsonWebToken = function(){
     return jwt.sign({ id: this._id }, process.env.JWT_SECRET_KEY, {

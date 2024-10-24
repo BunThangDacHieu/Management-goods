@@ -15,9 +15,9 @@ exports.GetAllSupplier = catchAsyncErrors(async (req, res) => {
 });
 //tạo nhà cung cấp
 exports.CreateSupplier = catchAsyncErrors(async (req, res) => {
-    const { name, address, contactEmail, contactPhone } = req.body;
+    const { name, address,password, contactEmail, contactPhone } = req.body;
     //Kt xem nhà cung cấp là bắt buộc hay không
-    if (!name || !contactEmail) {
+    if (!name || !contactEmail ||!password || !contactPhone ||!address) {
         return res.status(400).json({ message: 'Tên và Email là bắt buộc' });
     }
     //tạo nhà cung cấp mới
@@ -25,6 +25,7 @@ exports.CreateSupplier = catchAsyncErrors(async (req, res) => {
         const newSupplier = new Supplier({
             name,
             address,
+            password,
             contactEmail,
             contactPhone
         });

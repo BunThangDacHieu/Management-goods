@@ -8,7 +8,7 @@
   width: 60px;
   overflow-x: hidden;
   display: flex;
-  flex-direction: column;
+ 
 }
 
 .sidebar.expanded {

@@ -9,11 +9,11 @@ const Warehouse = require('../model/warehouse'); // Kiểm tra kho
 // Hiển thị toàn bộ cơ sở dữ liệu trong hệ thống
 exports.GetAllProducts = catchAsyncErrors(async (req, res, next) => {
     try {
-        const products = await Product.find().populate('category'); // Populating category
-        res.status(200).json(products);
+        const products = await Product.find().populate('category');
+        return res.status(200).json(products); // Đảm bảo bạn chỉ gọi res.json() một lần
     } catch (error) {
         console.log(error.message);
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message }); 
     }
 });
 
@@ -72,9 +72,7 @@ exports.CreateProduct = catchAsyncErrors(async (req, res, next) => {
 
         // Lưu sản phẩm vào cơ sở dữ liệu
         const savedProduct = await newProduct.save();
-        res.status(201).json({
-            ...savedProduct._doc
-        });
+        return res.status(201).json(savedProduct);
     } catch (error) {
         next(error);
     }
@@ -82,17 +80,19 @@ exports.CreateProduct = catchAsyncErrors(async (req, res, next) => {
 
 
 //Cập nhật thông tin cơ sở dữ liệu bằng ID
+// Cập nhật thông tin cơ sở dữ liệu bằng ID
 exports.UpdateProduct = catchAsyncErrors(async (req, res) => {
     try {
         const updatedProduct = await Product.findByIdAndUpdate(
-            req.params.id, //Id của Product
-            // req.body,  //dữ liệu của đối tượng Product
-            // {   new: true, //trả về dữ liệu được cập nhật 
-            //     runValidators: true 
-            // }
+            req.params.id, // Id của Product
+            req.body, // dữ liệu của đối tượng Product
+            {
+                new: true, // trả về dữ liệu được cập nhật
+                runValidators: true, // áp dụng các validator
+            }
         ).populate('category');
 
-        //Kiểm tra dữ liệu có vấn đề gì không
+        // Kiểm tra dữ liệu có vấn đề gì không
         if (!updatedProduct) {
             return res.status(404).json({ message: 'Product not found' });
         }
@@ -102,6 +102,7 @@ exports.UpdateProduct = catchAsyncErrors(async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 });
+
 
 
 //Xóa cơ sở dữ liệu Product bằng Id

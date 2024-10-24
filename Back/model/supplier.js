@@ -4,6 +4,10 @@ const SupplierSchema = new mongoose.Schema({
         type: String,
         required: [true, "Name need to required"]
     },
+    password: {
+        type: String,
+        required: [true, "Password need to required"]
+    },
     address: {
         type: String,
         required: [true, "Address need to required"]
@@ -16,8 +20,8 @@ const SupplierSchema = new mongoose.Schema({
     contactPhone: {
         type: String,
         required: [true, "Phone need to required"],
-        minLength: [11, "Phone Number Must Contain Exact 11 Digits!"],
-        maxLength: [11, "Phone Number Must Contain Exact 11 Digits!"]
+        minLength: [9, "Phone Number Must Contain Exact 9 Digits!"],
+        maxLength: [10, "Phone Number Must Contain Exact 10 Digits!"]
     },
 })
 

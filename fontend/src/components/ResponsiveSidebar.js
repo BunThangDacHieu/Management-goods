@@ -1,101 +1,128 @@
 import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Nav } from 'react-bootstrap';
-import { NavLink } from 'react-router-dom';
-import { List, X, LayoutDashboard, Table, User, BarChart2, AlertTriangle, ChevronDown, ChevronUp, ShoppingBag, AlignCenter } from 'lucide-react';
-import Logo from '../Image/image.png';
-import '../css/Sidebar.css';
-
-const NavItem = ({ icon, children, to, subItems }) => {
-  const [expanded, setExpanded] = useState(false);
-
-  return (
-    <Nav.Item className="nav-item">
-      {to ? (
-        <Nav.Link as={NavLink} to={to} className="sidebar-item">
-          {icon}
-          <span className="item-label">{children}</span>
-        </Nav.Link>
-      ) : (
-        <>
-          <div className={`sidebar-item ${expanded ? 'expanded' : ''}`} onClick={() => setExpanded(!expanded)}>
-            {icon}
-            <span className="item-label">{children}</span>
-            {subItems && <div className="chevron-icon">
-                {expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-              </div>}
-          </div>
-          {subItems && expanded && (
-            <div className="sub-nav">
-              {subItems.map((item, index) => (
-                <Nav.Link key={index} as={NavLink} to={item.to} className="sidebar-item sub-item">
-                  {item.icon}
-                  <span className="item-label">{item.label}</span>
-                </Nav.Link>
-              ))}
-            </div>
-          )}
-        </>
-      )}
-    </Nav.Item>
-  );
-};
+import { 
+  Menu, 
+  X, 
+  Home, 
+  Users, 
+  Settings, 
+  ShoppingCart, 
+  LogIn,
+  ChevronLeft, 
+  ChevronRight 
+} from 'lucide-react';
 
 const Sidebar = () => {
-  const [expanded, setExpanded] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(true);
+  const location = useLocation();
 
-  const toggleSidebar = () => setExpanded(!expanded);
+  const menuItems = [
+    { 
+      icon: Home, 
+      text: 'Trang chủ', 
+      path: '/',
+    },
+    { 
+      icon: ShoppingCart, 
+      text: 'Danh sách sản phẩm', 
+      path: '/' 
+    },
+    { 
+      icon: Users, 
+      text: 'Danh sách người dùng', 
+      path: '/user-list' 
+    },
+    { 
+      icon: Settings, 
+      text: 'Cài đặt', 
+      path: '/user-settings' 
+    },
+    { 
+      icon: LogIn, 
+      text: 'Đăng nhập', 
+      path: '/login' 
+    }
+  ];
 
   return (
-    <div className={`sidebar ${expanded ? 'expanded' : ''}`}>
-      <div className="sidebar-header">
-        <button className="toggle-btn" onClick={toggleSidebar}>
-          {expanded ? <X size={24} /> : <List size={24} />}
+    <div className={`
+      h-screen
+      bg-gray-900
+      text-white
+      ${isExpanded ? 'w-64' : 'w-20'}
+      transition-all duration-300
+      relative
+    `}>
+      {/* Header */}
+      <div className={`
+        flex items-center
+        ${isExpanded ? 'justify-between' : 'justify-center'}
+        p-4 h-16 border-b border-gray-800
+      `}>
+        {isExpanded && (
+          <h2 className="text-xl font-bold text-white">Admin Panel</h2>
+        )}
+        <button 
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="p-1 hover:bg-gray-800 rounded-lg transition-colors"
+        >
+          {isExpanded ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
         </button>
-        <span className="sidebar-title">
-        <img src={Logo} alt="Logo" className="sidebar-logo" />
-        </span>
       </div>
 
-      <Nav className="flex-column sidebar-content">
-        <NavItem icon={<LayoutDashboard size={20} />} to="/">Vận Chuyển</NavItem>
-        <NavItem className = "justify-content-center align-items-center"
-          style={{display: 'flex', alignItems: 'center'}}
-          icon={<ShoppingBag  size={20} />} 
-          subItems={[
-            { to: "/", label: "Danh sách sản phẩm" },
-            { to: "/", label: "Quản lý kho" },
-            { to: "/", label: "Đặt hàng nhập"},
-            { to: "/", label: "Nhập hàng"},
-            { to: "/", label: "Kiểm hàng" },
-            { to: "/", label: "Chuyển hàng" },
-            { to: "/", label: "Nhà Cung cấp" },
-            { to: "/", label: "Điều chỉnh giá vốn" }
-          ]}
-        >
-          Sản Phẩm
-        </NavItem>
-        <NavItem className = "justify-content-center align-items-center"
-          style={{display: 'flex', AlignCenter: 'center'}}
-          icon={<User   size={20} />} 
-          subItems={[
-            { to: "/", label: "Danh sách sản phẩm" },
-            { to: "/", label: "Quản lý kho" },
-            { to: "/", label: "Đặt hàng nhập"},
-            { to: "/", label: "Nhập hàng"},
-            { to: "/", label: "Kiểm hàng" },
-            { to: "/", label: "Chuyển hàng" },
-            { to: "/", label: "Nhà Cung cấp" },
-            { to: "/", label: "Điều chỉnh giá vốn" }
-          ]}
-        >
-          Sản Phẩm
-        </NavItem>
-        <NavItem icon={<AlertTriangle size={20} />} to="/hero404">404 page</NavItem>
+      {/* Navigation */}
+      <Nav className="flex-column mt-4">
+        {menuItems.map((item, index) => (
+          <Nav.Item key={index} className="w-full">
+            <Link
+              to={item.path}
+              className={`
+                flex items-center
+                ${isExpanded ? 'px-4' : 'justify-center px-2'}
+                py-3
+                text-gray-300
+                hover:bg-gray-800
+                transition-colors
+                group relative
+                ${location.pathname === item.path ? 'bg-gray-800 text-white' : ''}
+              `}
+            >
+              <item.icon size={20} />
+              {isExpanded ? (
+                <span className="ml-3">{item.text}</span>
+              ) : (
+                <div className="
+                  absolute left-full rounded-md px-2 py-1 ml-6
+                  bg-gray-900 text-sm
+                  invisible opacity-20 -translate-x-3 transition-all
+                  group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
+                  z-50
+                ">
+                  {item.text}
+                </div>
+              )}
+            </Link>
+          </Nav.Item>
+        ))}
       </Nav>
 
-      <div className="sidebar-footer">
-        <span>Sidebar Footer</span>
-      </div>
+      {/* Mobile Toggle Button */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`
+          fixed top-4 left-4
+          p-2
+          bg-gray-900 
+          text-white 
+          rounded-lg
+          lg:hidden
+          ${isOpen ? 'hidden' : 'block'}
+        `}
+      >
+        <Menu size={24} />
+      </button>
     </div>
   );
 };

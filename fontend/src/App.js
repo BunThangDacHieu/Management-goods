@@ -13,12 +13,12 @@ import ListProduct from './page/ListProduct';
 function App() {
   return (
     <Router>
-      <Container fluid className="p-0">
+      <Container fluid>
         <Row className="g-0">
           <Col xs="auto">
             <Sidebar />
           </Col>
-          <Col className="p-3 flex-grow-1" style={{ backgroundColor: 'green' }}>
+          <Col className="p-3" style={{ backgroundColor: 'green' }}>
             <Routes>
               <Route path="/" element={<ListProduct />} />
               <Route path="/login" element={<Login />} />

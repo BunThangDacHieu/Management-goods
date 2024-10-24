@@ -22,6 +22,7 @@ router.route('/register/employee').post(UserController.RegisterEmployee);
 
 // Route đăng ký cho nhà cung cấp
 router.route('/register/supplier').post(UserController.RegisterSupplier);
+
 /-Products--/
 // Chỉ Employee hoặc Manager có thể quản lý sản phẩm
 router.route('/products') 
@@ -43,16 +44,18 @@ router.route('/category/:id')
       .get(CategoryController.getCategorybyId)
       .put(protect, isAdminAuthenticated, isAuthorized('Manager') ,CategoryController.UpdateCategory)
       .delete(protect, isAdminAuthenticated, isAuthorized('Manager'), CategoryController.DeleteCategory);
+
 // Chỉ Manager có quyền quản lý người dùng
 /-User-/
 router.route('/user')
-      .get(protect, isAdminAuthenticated, isAuthorized('Manager'),UserController.GetAllUser);
+      .get(protect, isAdminAuthenticated, isAuthorized('Manager'), UserController.GetAllUser);
       // .post(protect, isAdminAuthenticated, isAuthorized('Manager') ,UserController.CreateNewUser);
 
 router.route('/user/:id')
       .get(protect, isAdminAuthenticated, isAuthorized('Manager'),UserController.FindUserbyUserId)
       .put(protect, isAdminAuthenticated, isAuthorized('Manager'),UserController.UpdateUserInfomation)
       .delete(protect, isAdminAuthenticated, isAuthorized('Manager'),UserController.DeleteUserById);
+
 // Employee và Manager có quyền quản lý kho
 /-warehouse-/
 router.route('/warehouse')

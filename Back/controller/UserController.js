@@ -12,114 +12,97 @@ const Supplier = require('../model/supplier')
 
 // Đăng ký quản lý (Manager)
 exports.RegisterManager = catchAsyncErrors(async (req, res, next) => {
-    try {
-        const { name, email, password, confirmPassword } = req.body;
+    const { name, email, password, confirmPassword } = req.body;
 
-        // Kiểm tra thông tin cơ bản
-        if (!name || !email || !password || !confirmPassword) {
-            return next(new ErrorHandler("Nhập thông tin đầy đủ", 400));
-        }
-
-        // Kiểm tra mật khẩu khớp
-        if (password !== confirmPassword) {
-            return next(new ErrorHandler("Mật khẩu không khớp", 400));
-        }
-
-        // Kiểm tra xem email đã tồn tại chưa
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return next(new ErrorHandler("Email đã được sử dụng", 400));
-        }
-
-        // Tạo tài liệu User với vai trò Manager
-        const user = await User.create({
-            name,
-            email,
-            password,
-            role: 'Manager' // Mặc định là Manager
-        });
-
-        // Gửi phản hồi với token
-        generateToken(user, "Đăng ký thành công", 201, res);
-    } catch (error) {
-        next(error);
+    // Kiểm tra thông tin cơ bản
+    if (!name || !email || !password || !confirmPassword) {
+        return next(new ErrorHandler("Nhập thông tin đầy đủ", 400));
     }
+
+    // Kiểm tra mật khẩu khớp
+    if (password !== confirmPassword) {
+        return next(new ErrorHandler("Mật khẩu không khớp", 400));
+    }
+
+    // Kiểm tra xem email đã tồn tại chưa
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+        return next(new ErrorHandler("Email đã được sử dụng", 400));
+    }
+
+    // Tạo tài liệu User với vai trò Manager
+    const user = await User.create({
+        name,
+        email,
+        password,
+        role: 'Manager' // Mặc định là Manager
+    });
+
+    // Gửi phản hồi với token
+    return generateToken(user, "Đăng ký thành công", 201, res);
 });
 
 // Đăng nhập người quản lý (Manager)
 exports.ManagerLogin = catchAsyncErrors(async (req, res, next) => {
-    try {
-        // Nhập thông tin dữ liệu
-        const { password, email } = req.body; // Sử dụng email từ request
+    const { password, email } = req.body;
 
-        // Xác nhận thông tin được nhập
-        if (!password || !email) {
-            return next(new ErrorHandler("Nhập thông tin đầy đủ", 400));
-        }
-
-        // Tìm người dùng theo email
-        const user = await User.findOne({ email, role: 'Manager' }).select("+password");
-
-        if (!user) {
-            return next(new ErrorHandler("Sai mật khẩu hoặc email", 400));
-        }
-
-        // Kiểm tra xem người dùng đã tồn tại trong hệ thống hay chưa
-        const isPasswordMatch = await user.comparePassword(password);
-        if (!isPasswordMatch) {
-            return next(new ErrorHandler("Sai Email hoặc Password!", 400));
-        }
-
-        // Gửi phản hồi với token
-        generateToken(user, "Đăng nhập thành công", 200, res);
-    } catch (error) {
-        console.log("Hệ thống có vấn đề, hãy kiểm tra lại");
-        res.status(500).json({ message: error.message });
+    // Xác nhận thông tin được nhập
+    if (!password || !email) {
+        return next(new ErrorHandler("Nhập thông tin đầy đủ", 400));
     }
+
+    // Tìm người dùng theo email
+    const user = await User.findOne({ email, role: 'Manager' }).select("+password");
+    if (!user) {
+        return next(new ErrorHandler("Sai mật khẩu hoặc email", 400));
+    }
+
+    // Kiểm tra mật khẩu
+    const isPasswordMatch = await user.comparePassword(password);
+    if (!isPasswordMatch) {
+        return next(new ErrorHandler("Sai Email hoặc Password!", 400));
+    }
+
+    // Gửi phản hồi với token
+    return generateToken(user, "Đăng nhập thành công", 200, res);
 });
 
 
 //Đăng ký nhân viên(Employee)
 exports.RegisterEmployee = catchAsyncErrors(async (req, res, next) => {
-    try {
-        const { name, email, password, confirmPassword } = req.body;
+    const { name, email, password, confirmPassword } = req.body;
 
-        // Kiểm tra thông tin cơ bản
-        if (!name || !email || !password || !confirmPassword) {
-            return next(new ErrorHandler("Nhập thông tin đầy đủ", 400));
-        }
-
-        // Kiểm tra mật khẩu khớp
-        if (password !== confirmPassword) {
-            return next(new ErrorHandler("Mật khẩu không khớp", 400));
-        }
-
-        // Kiểm tra xem email đã tồn tại chưa
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return next(new ErrorHandler("Email đã được sử dụng", 400));
-        }
-
-        // Tạo tài liệu User với vai trò Employee
-        const user = await User.create({
-            name,
-            email,
-            password,
-            role: 'Employee' // Mặc định là Employee
-            // Không cần phải thêm username nếu không sử dụng
-        });
-
-        // Gửi phản hồi với token
-        generateToken(user, "Đăng ký thành công", 201, res);
-    } catch (error) {
-        next(error);
+    // Kiểm tra thông tin cơ bản
+    if (!name || !email || !password || !confirmPassword) {
+        return next(new ErrorHandler("Nhập thông tin đầy đủ", 400));
     }
+
+    // Kiểm tra mật khẩu khớp
+    if (password !== confirmPassword) {
+        return next(new ErrorHandler("Mật khẩu không khớp", 400));
+    }
+
+    // Kiểm tra xem email đã tồn tại chưa
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+        return next(new ErrorHandler("Email đã được sử dụng", 400));
+    }
+
+    // Tạo tài liệu User với vai trò Employee
+    const user = await User.create({
+        name,
+        email,
+        password,
+        role: 'Employee' // Mặc định là Employee
+    });
+
+    // Gửi phản hồi với token
+    return generateToken(user, "Đăng ký thành công", 201, res);
 });
 
 
 //Đăng ký người cung hàng(Supplier)
 exports.RegisterSupplier = catchAsyncErrors(async(req, res, next) =>{
-    try {
         const { name, address, contactEmail, password, confirmPassword, contactPhone } = req.body;
 
     // Kiểm tra thông tin cơ bản
@@ -163,29 +146,21 @@ exports.RegisterSupplier = catchAsyncErrors(async(req, res, next) =>{
     });
 
     // Gửi phản hồi với token
-    generateToken(user, "Đăng ký nhà cung cấp thành công", 201, res);
-    } catch (error) {
-        next(error)
-    }
+    return generateToken(user, "Đăng ký nhà cung cấp thành công", 201, res);
 })
 
 // Đăng nhập người dùng
 exports.Login = catchAsyncErrors(async (req, res, next) => {
-    try {
-        const { password, contactEmail, confirmPassword } = req.body;
+        const { password, email } = req.body;
 
-        if (!password || !contactEmail || !confirmPassword) {
+        if (!password || !email ) {
             return next(new ErrorHandler("Nhập thông tin đầy đủ", 400));
-        }
-
-        if (password !== confirmPassword) {
-            return next(new ErrorHandler("Lỗi xác định mật khẩu", 400));
         }
 
         const user = await User.findOne({
             $or: [
-                { email: contactEmail },
-                { supplier: { $exists: true }, contactEmail }
+                { email }, // Tìm theo email
+                { supplier: { $exists: true }, contactEmail: email } // Tìm theo contactEmail nếu là nhà cung cấp
             ]
         }).select("+password");
 
@@ -199,30 +174,27 @@ exports.Login = catchAsyncErrors(async (req, res, next) => {
         }
 
         // Tạo và gửi token
-        const token = user.generateJsonWebToken();
-        res.status(200).json({
-            success: true,
-            message: "Đăng nhập thành công",
-            token,
-        });
-    } catch (error) {
-        console.log("Hệ thống có vấn đề, hãy kiểm tra lại");
-        res.status(500).json({ message: error.message });
-    }
+        // Gửi phản hồi với token
+        return generateToken(user, "Đăng nhập thành công", 200, res);
 });
 
 
 
 //------Các method chuyền đến server đối với User/ Hệ thống quản lý người dùng-------//
-exports.GetAllUser = catchAsyncErrors(async (req, res) => {
-    try {
-        const users = await User.find();
-        res.status(200).json(users);
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).json({message: error.message});
+exports.GetAllUser = catchAsyncErrors(async (req, res, next) => {
+    console.log('Request received for GetAllUser');
+    const users = await User.find(); 
+    console.log('Users found:', users);
+    
+    if (!users.length) {
+        return next(new ErrorHandler('Không tìm thấy người dùng!', 404)); // Chỉ gửi một lần
     }
-})
+
+    res.status(200).json({
+        success: true,
+        users
+    });
+});
 //Tạo người dùng mới trong cơ sở dữ liệu
 // exports.CreateNewUser = catchAsyncErrors(async (req, res) => {
 //     try {
@@ -261,7 +233,7 @@ exports.GetAllUser = catchAsyncErrors(async (req, res) => {
 
 
 exports.FindUserbyUserId = catchAsyncErrors(async (req, res) => {
-    try {
+    
         //Check mail từ người dùng nhập
         const { id } = req.params;
 
@@ -279,9 +251,6 @@ exports.FindUserbyUserId = catchAsyncErrors(async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
         res.status(200).json({ success: true, data: users });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
 });
 //Cập nhật Người 
 exports.UpdateUserInfomation = catchAsyncErrors(async (req, res) =>{

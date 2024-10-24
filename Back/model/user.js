@@ -43,11 +43,13 @@ const UserSchema = new mongoose.Schema({
 )
 //Middleware để hash mật khẩu trước khi lưu
 UserSchema.pre("save", async function(next) {
-    if(this.isModified("password")){
-        next();
+    if (!this.isModified("password")) {
+        return next(); // Nếu không thay đổi mật khẩu, tiếp tục
     }
-    this.password = await bcrypt.hash(this.password, 10);
-})
+    this.password = await bcrypt.hash(this.password, 10); // Hash mật khẩu
+    next(); // Gọi next sau khi hash
+});
+
 //So sánh mật khẩu
 UserSchema.methods.comparePassword = async function (enteredPassword) {
     console.log('Mật khẩu nhập vào:', enteredPassword);

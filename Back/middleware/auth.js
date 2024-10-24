@@ -4,39 +4,40 @@ const {ErrorHandler} = require('./error.js');
 const jwt = require('jsonwebtoken');
 
 // Hỗ trợ lấy thông tin người dùng từ token
-const getUserFromToken = async (token) => {
+const getUserFromToken = async (token, next) => {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-      return await User.findById(decoded.id);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        return await User.findById(decoded.id);
     } catch (error) {
-      return next(new ErrorHandler({error}), 400)
+        return next(new ErrorHandler({error}), 400) // Sử dụng next() để gửi lỗi
     }
 };
 
 // Middleware bảo vệ các routes - xác thực token cho tất cả người dùng
 exports.protect = catchAsyncErrors(async (req, res, next) => {
-  // Kiểm tra xem req.cookies có tồn tại không
-  let token = (req.cookies && req.cookies.userToken) || 
-              (req.headers.authorization && req.headers.authorization.startsWith('Bearer') ? req.headers.authorization.split(' ')[1] : null);
+    let token = (req.cookies && req.cookies.userToken) || 
+                (req.headers.authorization && req.headers.authorization.startsWith('Bearer') ? req.headers.authorization.split(' ')[1] : null);
 
-  if (!token) {
-      return next(new ErrorHandler('Bạn chưa đăng nhập!', 401));
-  }
+    if (!token) {
+        return next(new ErrorHandler('Bạn chưa đăng nhập!', 401)); // Gửi lỗi nếu không có token
+    }
 
-  try {
-      req.user = await getUserFromToken(token);
-      if (!req.user) {
-          return next(new ErrorHandler('Không tìm thấy người dùng với token này!', 404));
-      }
-      next();
-  } catch (error) {
-      return next(new ErrorHandler('Token không hợp lệ hoặc đã hết hạn!', 401));
-  }
+    try {
+        req.user = await getUserFromToken(token, next);
+        if (!req.user) {
+            return next(new ErrorHandler('Không tìm thấy người dùng với token này!', 404)); // Gửi lỗi nếu không tìm thấy user
+        }
+        next();
+    } catch (error) {
+        return next(new ErrorHandler('Token không hợp lệ hoặc đã hết hạn!', 401)); // Gửi lỗi nếu token không hợp lệ
+    }
 });
 
+
+// Middleware phân quyền người dùng Manager, Employee
 // Middleware phân quyền người dùng Manager, Employee
 exports.isAdminAuthenticated = catchAsyncErrors(async (req, res, next) => {
-    let token = req.cookies.adminToken || (req.headers.authorization && req.headers.authorization.startsWith('Bearer') ? req.headers.authorization.split(' ')[1] : null);
+    let token = req.cookies.adminToken || req.cookies.employeeToken || (req.headers.authorization && req.headers.authorization.startsWith('Bearer') ? req.headers.authorization.split(' ')[1] : null);
 
     if (!token) {
         return next(new ErrorHandler("Người dùng không có quyền!", 401));
@@ -49,6 +50,7 @@ exports.isAdminAuthenticated = catchAsyncErrors(async (req, res, next) => {
         }
         next();
     } catch (error) {
+        console.error("Lỗi xác thực admin:", error);
         return next(new ErrorHandler("Token không hợp lệ hoặc đã hết hạn!", 401));
     }
 });
@@ -76,7 +78,7 @@ exports.isSupplierAuthenticated = catchAsyncErrors(async (req, res, next) => {
 exports.isAuthorized = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {
-            return next(new ErrorHandler(`${req.user.role} không có quyền truy cập vào hệ thống này!`, 403));
+            return next(new ErrorHandler(`${req.user.role} không có quyền truy cập vào hệ thống này!`, 403)); // Gửi lỗi nếu không có quyền
         }
         next();
     };

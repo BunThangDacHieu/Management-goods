@@ -36,13 +36,14 @@ app.use('/', routerController);
 
 //Cái con mẹ gì đây :v
 app.use((err, req, res, next) => {
-    //in ra lỗi bằng log
+    // In ra lỗi bằng log
     console.error(err);
-    //kiểm tra statusCode ở đối tượng err, nếu có thì sd còn nếu ko thì mặc định là 500
+    // Kiểm tra xem đã gửi phản hồi chưa
+    if (res.headersSent) {
+        return next(err); // Nếu đã gửi phản hồi, chỉ cần gọi next để không gửi lại phản hồi
+    }
     const statusCode = err.statusCode || 500;
-    //Và trả về văn bản? dưới dạng json gì gì đó
     res.status(statusCode).json({
-        //gửi err mess/hoặc một cái tin nhắn gì đó  
         message: err.message || 'Internal Server Error',
     });
 });

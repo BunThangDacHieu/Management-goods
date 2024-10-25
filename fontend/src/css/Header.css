@@ -1,12 +1,57 @@
 /* Header.css */
-
-.header-container {
-    display: flex; /* Sử dụng flexbox để căn giữa */
-    justify-content: center; /* Căn giữa theo chiều ngang */
-    align-items: center; /* Căn giữa theo chiều dọc */
-    height: 100vh; /* Chiều cao bằng chiều cao của viewport */
+.header-wrapper {
+    width: 95%; /* Đảm bảo header chiếm toàn bộ chiều rộng */
+    transition: margin-left 0.3s ease; /* Chuyển tiếp margin-left */
 }
 
-form {
-    width: 100%; /* Đảm bảo form chiếm toàn bộ chiều rộng */
+.header-expanded {
+    margin-left: 100px; /* Sidebar mở rộng */
+}
+
+.header-collapsed {
+    margin-left: 60px; /* Không có margin khi sidebar thu gọn */
+}
+
+.header-nav {
+    height: 60px;
+    background-color: white !important;
+    display: flex; /* Sử dụng flex để căn chỉnh các phần tử bên trong */
+    align-items: center; /* Căn giữa chiều dọc */
+}
+
+/* Custom styles for search input */
+.form-control {
+    background-color: #f8f9fa !important;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #ced4da;
+    background-color: white !important;
+}
+
+/* Custom styles for dropdown toggles */
+.dropdown-toggle::after {
+    display: none;
+}
+
+.dropdown-toggle:hover {
+    opacity: 0.8;
+}
+
+/* Badge positioning */
+.badge {
+    font-size: 0.6rem;
+    padding: 0.25em 0.4em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .header-nav {
+        padding: 0.5rem !important;
+    }
+
+    .dropdown-toggle span {
+        display: none;
+    }
 }

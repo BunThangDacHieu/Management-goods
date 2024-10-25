@@ -1,11 +1,12 @@
 import React from 'react';
-import ControlledCarousel from '../components/ControlledCarousel'; 
-import Sidebar from '../components/ResponsiveSidebar';
-export default function Homepage() {
-  return (
-    <div>
+import { Container } from 'react-bootstrap';
+import '../css/Homepage.css'
 
-      {/* <ControlledCarousel /> */}
-    </div>
+export default function Homepage({ isSidebarOpen }) {
+  return (
+    <Container fluid className={`homepage-content ${isSidebarOpen ? 'expanded' : 'collapsed'}`}>
+      <h1>Trang chủ</h1>
+      <p>Đây là nội dung trang chủ của bạn.</p>
+    </Container>
   );
 }

@@ -1,35 +1,23 @@
 // App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { Container, Row, Col } from 'react-bootstrap';
-import Sidebar from './components/ResponsiveSidebar';
-import Homepage from './page/Homepage';
+import Header from './components/Header';
+import Home from './page/Home';
 import Login from './page/Login';
-import Error from './page/Error';
+import UserManagement from './page/UserManagement'; // Import UserManagement
+import ProductManagement from './page/ProductManagemet';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import ListProduct from './page/ListProduct';
-// Import other necessary pages
 
 function App() {
   return (
     <Router>
-      <Container fluid className="p-0">
-        <Row className="g-0">
-          <Col xs="auto">
-            <Sidebar />
-          </Col>
-          <Col className="p-3 flex-grow-1" style={{ backgroundColor: 'green' }}>
-            <Routes>
-              <Route path="/" element={<ListProduct />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/user-list" />
-              <Route path="/user-settings" />
-              {/* Add other routes corresponding to sub-items */}
-              <Route path="*" element={<Error />} />
-            </Routes>
-          </Col>
-        </Row>
-      </Container>
+      <Header />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/users" element={<UserManagement />} />
+        <Route path="/products" element={<ProductManagement />} /> {/* Add this line */}
+      </Routes>
     </Router>
   );
 }

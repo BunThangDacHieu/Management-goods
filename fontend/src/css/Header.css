@@ -1,12 +1,23 @@
-/* Header.css */
-
-.header-container {
-    display: flex; /* Sử dụng flexbox để căn giữa */
-    justify-content: center; /* Căn giữa theo chiều ngang */
-    align-items: center; /* Căn giữa theo chiều dọc */
-    height: 100vh; /* Chiều cao bằng chiều cao của viewport */
-}
-
-form {
-    width: 100%; /* Đảm bảo form chiếm toàn bộ chiều rộng */
-}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #007bff; /* Đổi nền xanh */
+    color: white; /* Màu chữ */
+  }
+  
+  .header nav ul {
+    list-style-type: none;
+    display: flex;
+    gap: 20px; /* Khoảng cách giữa các mục */
+  }
+  
+  .header nav ul li a {
+    color: white;
+    text-decoration: none;
+  }
+  
+  .header nav ul li a:hover {
+    text-decoration: underline; /* Hiệu ứng khi hover */
+  }

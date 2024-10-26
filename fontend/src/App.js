@@ -6,6 +6,7 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import Homepage from './page/Homepage';
 import ListProduct from './page/ListProduct';
+import UserManagement from './page/UserManagement';
 
 
 function App() {
@@ -30,7 +31,8 @@ function App() {
               <Routes>
                 <Route path="/" element={<Homepage  isSidebarOpen={isSidebarOpen}  />} />
                 <Route path="/product-list" element={<ListProduct />} />
-                {/* <Route path="/user-settings" element={<UserSettings />} />
+                <Route path="/users" element={<UserManagement />} />
+                                {/* <Route path="/user-settings" element={<UserSettings />} />
                 <Route path="/permissions" element={<Permissions />} /> */}
               </Routes>
             </div>

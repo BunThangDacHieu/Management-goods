@@ -1,42 +1,49 @@
-// page/Login.js
 import React, { useState, useContext } from 'react';
 import { Form, Button, Container, Row, Col, Card, Navbar } from 'react-bootstrap';
-import { managerLogin, commonLogin } from '../api/auth';
+import { commonLogin } from '../api/auth';
 import { AuthContext } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { FaUser, FaLock, FaFacebookF, FaTwitter, FaGoogle, FaLinkedin } from 'react-icons/fa';
-import '../css/Login.css'; // Tạo file CSS để định nghĩa các kiểu cần thiết
+import '../css/Login.css';
 
 const Login = () => {
   const { setToken } = useContext(AuthContext);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
   const [error, setError] = useState('');
-  const [isManager, setIsManager] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+    setError(''); // Clear error when user types
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true); // Đặt loading là true khi bắt đầu
     try {
-      const response = await commonLogin({ email, password });
+      const response = await commonLogin(formData); // Sử dụng formData cho email và password
       const token = response.data.token;
 
-      // Lưu token vào localStorage
       localStorage.setItem('token', token);
       setToken(token);
 
-      // Xác định role người dùng từ token (giả sử token có chứa thông tin vai trò)
       const role = JSON.parse(atob(token.split('.')[1])).role; // Giả sử token là JWT và chứa thông tin role
-      // Tiến hành điều hướng hoặc xử lý tiếp theo dựa trên role
       console.log('User role:', role);
 
       // Điều hướng đến trang khác dựa trên vai trò
-      // if (role === 'manager') {
-      //   // Điều hướng đến trang manager
-      // } else {
-      //   // Điều hướng đến trang người dùng
-      // }
+      navigate(role === 'manager' ? '/product-list' : '/manager-dashboard');
     } catch (err) {
       setError('Đăng nhập không thành công. Vui lòng thử lại.');
       console.error('Login error:', err);
+    } finally {
+      setLoading(false); // Đặt loading lại thành false khi hoàn tất
     }
   };
 
@@ -65,9 +72,10 @@ const Login = () => {
                 <Form.Label><FaUser /> Email</Form.Label>
                 <Form.Control
                   type="email"
+                  name="email"
                   placeholder="Nhập email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formData.email}
+                  onChange={handleChange}
                   required
                 />
               </Form.Group>
@@ -75,9 +83,10 @@ const Login = () => {
                 <Form.Label><FaLock /> Mật khẩu</Form.Label>
                 <Form.Control
                   type="password"
+                  name="password"
                   placeholder="Nhập mật khẩu"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={handleChange}
                   required
                 />
               </Form.Group>
@@ -85,8 +94,13 @@ const Login = () => {
                 <Form.Check type="checkbox" label="Nhớ mật khẩu" />
                 <a href="#!">Quên mật khẩu?</a>
               </div>
-              <Button variant="primary" type="submit" className="w-100 mt-3">
-                Đăng Nhập
+              <Button 
+                variant="primary" 
+                type="submit" 
+                className="w-100 mt-3"
+                disabled={loading}
+              >
+                {loading ? 'Đang đăng nhập...' : 'Đăng Nhập'}
               </Button>
               <p className="small fw-bold mt-2 pt-1 mb-2 text-center">
                 Chưa có tài khoản? <a href="/register" className="link-danger">Đăng ký</a>
@@ -96,11 +110,10 @@ const Login = () => {
         </Col>
       </Row>
 
-      {/* Footer */}
       <footer className="bg-primary text-white py-3">
         <Container fluid>
           <div className="d-flex justify-content-between">
-            <div>Copyright © 2020. Tất cả quyền được bảo lưu.</div>
+            <div>LogisTech © 2024. Tất cả quyền được bảo lưu.</div>
             <div>
               <a href="#!" className="text-white mx-3"><FaFacebookF /></a>
               <a href="#!" className="text-white mx-3"><FaTwitter /></a>

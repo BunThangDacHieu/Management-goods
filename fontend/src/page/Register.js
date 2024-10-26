@@ -2,9 +2,9 @@
 import React, { useState, useContext } from 'react';
 import { Form, Button, Container, Row, Col, Card, Navbar } from 'react-bootstrap';
 import { AuthContext } from '../context/AuthContext';
-import { registerEmployee, registerSupplier } from '../api/auth'; // Đảm bảo bạn đã tạo hàm registerUser trong api/auth
+import { registerEmployee, registerSupplier } from '../api/auth';
 import { FaUser, FaLock, FaFacebookF, FaTwitter, FaGoogle, FaLinkedin } from 'react-icons/fa';
-import '../css/Login.css'; // Tạo file CSS để định nghĩa các kiểu cần thiết
+import '../css/Login.css';
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -12,25 +12,34 @@ const Register = () => {
   const [role, setRole] = useState('employee'); // Default role là 'employee'
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
+  const [loading, setLoading] = useState(false); // Trạng thái xử lý đăng ký
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setLoading(true); // Bắt đầu xử lý
+    setError(''); // Đặt lại lỗi trước đó
+    setSuccess(''); // Đặt lại thông báo thành công trước đó
+
     try {
+      const trimmedEmail = email.trim(); // Xóa khoảng trắng
+      const trimmedPassword = password.trim(); // Xóa khoảng trắng
       let response;
+
       if (role === 'employee') {
-        response = await registerEmployee({ email, password });
+        response = await registerEmployee({ email: trimmedEmail, password: trimmedPassword });
       } else if (role === 'supplier') {
-        response = await registerSupplier({ email, password });
+        response = await registerSupplier({ email: trimmedEmail, password: trimmedPassword });
       }
 
       if (response && response.status === 200) {
         setSuccess('Đăng ký thành công! Bạn có thể đăng nhập.');
-        setError('');
       }
     } catch (err) {
-      setError('Đăng ký không thành công. Vui lòng thử lại.');
+      const message = err.response?.data?.message || 'Đăng ký không thành công. Vui lòng thử lại.';
+      setError(message); // Hiển thị thông báo lỗi cụ thể từ API
       console.error('Register error:', err);
+    } finally {
+      setLoading(false); // Kết thúc xử lý
     }
   };
 
@@ -83,8 +92,8 @@ const Register = () => {
                   <option value="supplier">Nhà cung cấp</option>
                 </Form.Control>
               </Form.Group>
-              <Button variant="primary" type="submit" className="w-100 mt-3">
-                Đăng Ký
+              <Button variant="primary" type="submit" className="w-100 mt-3" disabled={loading}>
+                {loading ? 'Đang Đăng Ký...' : 'Đăng Ký'}
               </Button>
               <p className="small fw-bold mt-2 pt-1 mb-2 text-center">
                 Đã có tài khoản? <a href="/login" className="link-danger">Đăng nhập</a>
@@ -98,9 +107,9 @@ const Register = () => {
       <footer className="bg-primary text-white py-3">
         <Container fluid>
           <div className="d-flex justify-content-between">
-            <div>Copyright © 2020. Tất cả quyền được bảo lưu.</div>
+            <div>LogisTech © 2024. Tất cả quyền được bảo lưu.</div>
             <div>
-                <a href="#!" className="text-white mx-3"><FaFacebookF /></a>
+              <a href="#!" className="text-white mx-3"><FaFacebookF /></a>
               <a href="#!" className="text-white mx-3"><FaTwitter /></a>
               <a href="#!" className="text-white mx-3"><FaGoogle /></a>
               <a href="#!" className="text-white mx-3"><FaLinkedin /></a>

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = process.env.API_URL; // URL của Backend
+const API_URL = process.env.REACT_APP_API_URL ||'http://localhost:9999'; // URL của Backend
 
 const authHeader = (token) => ({
     headers: {
@@ -12,13 +12,28 @@ const authHeader = (token) => ({
 
 // Đăng ký tài khoản
 export const registerManager = (data) => axios.post(`${API_URL}/register/manager`, data);
-export const registerEmployee = (data) => axios.post(`${API_URL}/register/employee`, data);
+export const registerEmployee = (data) => {
+  return axios.post(`${API_URL}/register/employee`, data);
+}
 export const registerSupplier = (data) => axios.post(`${API_URL}/register/supplier`, data);
 
 // Đăng nhập tài khoản
 export const managerLogin = (data) => axios.post(`${API_URL}/login/manager`, data);
-export const commonLogin = (data) => axios.post(`${API_URL}/login`, data);
+export const commonLogin = async (data) => {
+  const { email, password } = data;
+  return await axios.post(`${API_URL}/login`, { email, password });
+};
+
 export const logout = () => localStorage.removeItem('token');
+
+// Quên mật khẩu
+export const forgotPassword = (email) => 
+  axios.post(`${API_URL}/forgot-password`, { email });
+
+// Đặt lại mật khẩu
+export const resetPassword = (token, newPassword) => 
+  axios.patch(`${API_URL}/reset-password/${token}`, { password: newPassword });
+
 // ===== Products =====
 
 // Lấy tất cả sản phẩm

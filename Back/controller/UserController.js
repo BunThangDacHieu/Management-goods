@@ -184,20 +184,23 @@ exports.Login = catchAsyncErrors(async (req, res, next) => {
 
 
 //------Các method chuyền đến server đối với User/ Hệ thống quản lý người dùng-------//
-exports.ForgotPassword = catchAsyncErrors(async(req, res, next) =>{
+exports.ForgotPassword = catchAsyncErrors(async(req, res, next) => {
     const {email} = req.body;
 
     const user = await User.findOne({email});
 
     if(!user) {
-        return next(new ErrorHandler('Không tìm thấy người dùng'))
+        return next(new ErrorHandler('Không tìm thấy người dùng', 404));
     }
+
     const resetToken = user.createPasswordResetToken();
     await user.save({ validateBeforeSave: false });
 
-    const resetUrl = `${req.protocol}://${req.get('host')}/reset-password/${resetToken}`; // Tạo link khôi phục mật khẩu
+    // Create reset URL - consider making this an environment variable
+    const resetUrl = `${req.protocol}://${req.get('host')}/reset-password/${resetToken}`;
 
     const message = `Vui lòng nhấn vào liên kết để khôi phục mật khẩu của bạn: \n\n ${resetUrl} \n\n Nếu bạn không yêu cầu khôi phục mật khẩu, hãy bỏ qua email này.`;
+
     try {
         await sendEmail({
             email: user.email,
@@ -206,6 +209,7 @@ exports.ForgotPassword = catchAsyncErrors(async(req, res, next) =>{
         });
 
         res.status(200).json({
+            success: true,
             message: `Reset token đã được gửi tới email: ${email}`,
         });
     } catch (error) {
@@ -213,36 +217,38 @@ exports.ForgotPassword = catchAsyncErrors(async(req, res, next) =>{
         user.passwordResetExpires = undefined;
         await user.save({ validateBeforeSave: false });
 
-        return res.status(500).json({
-            message: 'Có lỗi xảy ra khi gửi email, vui lòng thử lại sau.'
-        });
+        return next(new ErrorHandler('Có lỗi xảy ra khi gửi email, vui lòng thử lại sau.', 500));
     }
-})
-
+});
 // Hàm khôi phục mật khẩu
-exports.ResetPassword = async (req, res) => {
+exports.ResetPassword = catchAsyncErrors(async (req, res, next) => {
     const { token } = req.params;
     const { password } = req.body;
 
-    // Băm token
+    // Hash token
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    
     const user = await User.findOne({
         passwordResetToken: hashedToken,
-        passwordResetExpires: { $gt: Date.now() } // Kiểm tra token chưa hết hạn
+        passwordResetExpires: { $gt: Date.now() }
     });
 
     if (!user) {
-        return res.status(400).json({ message: 'Token không hợp lệ hoặc đã hết hạn' });
+        return next(new ErrorHandler('Token không hợp lệ hoặc đã hết hạn', 400));
     }
 
-    // Cập nhật mật khẩu mới
+    // Update password
     user.password = password;
-    user.passwordResetToken = undefined; // Xóa token
-    user.passwordResetExpires = undefined; // Xóa thời gian hết hạn
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    
     await user.save();
 
-    res.status(200).json({ message: 'Mật khẩu đã được khôi phục thành công' });
-};
+    res.status(200).json({
+        success: true,
+        message: 'Mật khẩu đã được khôi phục thành công'
+    });
+});
 
 
 exports.GetAllUser = catchAsyncErrors(async (req, res, next) => {

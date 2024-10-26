@@ -1,6 +1,6 @@
 // App.js
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useNavigate  } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Layout from './components/Layout';
 import Homepage from './page/Homepage';
@@ -8,16 +8,17 @@ import ListProduct from './page/ListProduct';
 import Register from './page/Register';
 import Login from './page/Login'; 
 
-function App() {
+function Bao() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
+  const navigate = useNavigate(); 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
   return (
-    <AuthProvider>
-      <Router>
+    <AuthProvider navigate={navigate}>
+      
+      
         <Routes>
           {/* Route cho trang đăng nhập */}
           <Route path="/login" element={<Login />} />
@@ -29,8 +30,18 @@ function App() {
             {/* Các route khác */}
           </Route>
         </Routes>
-      </Router>
-    </AuthProvider>
+       
+      
+      </AuthProvider>
+    
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Bao />
+    </Router>
   );
 }
 

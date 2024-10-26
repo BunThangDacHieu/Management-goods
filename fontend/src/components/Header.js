@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 // Header.js
 import React from 'react';
 import { Navbar, Button, Form, InputGroup, Dropdown } from 'react-bootstrap';
@@ -62,6 +63,8 @@ export default function Header({isSidebarOpen  }) {
     );
 }
 =======
+=======
+>>>>>>> 2596c5d98409f39113ca879c7765d199e421f9d4
 // components/Header.js
 import React from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
@@ -86,5 +89,9 @@ function Header() {
   );
 }
 
+<<<<<<< HEAD
+export default Header;
+>>>>>>> 2596c5d98409f39113ca879c7765d199e421f9d4
+=======
 export default Header;
 >>>>>>> 2596c5d98409f39113ca879c7765d199e421f9d4

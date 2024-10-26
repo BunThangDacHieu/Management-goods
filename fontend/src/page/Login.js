@@ -1,7 +1,10 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+=======
+>>>>>>> 2596c5d98409f39113ca879c7765d199e421f9d4
 =======
 >>>>>>> 2596c5d98409f39113ca879c7765d199e421f9d4
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Header.css */
 .header-wrapper {
     width: 95%; /* Đảm bảo header chiếm toàn bộ chiều rộng */
@@ -57,3 +58,28 @@
         display: none;
     }
 }
+=======
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #007bff; /* Đổi nền xanh */
+    color: white; /* Màu chữ */
+  }
+  
+  .header nav ul {
+    list-style-type: none;
+    display: flex;
+    gap: 20px; /* Khoảng cách giữa các mục */
+  }
+  
+  .header nav ul li a {
+    color: white;
+    text-decoration: none;
+  }
+  
+  .header nav ul li a:hover {
+    text-decoration: underline; /* Hiệu ứng khi hover */
+  }
+>>>>>>> 2596c5d98409f39113ca879c7765d199e421f9d4

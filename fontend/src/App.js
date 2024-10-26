@@ -1,13 +1,21 @@
 // App.js
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+<<<<<<< HEAD
 import { Container, Row, Col } from 'react-bootstrap'; // Import từ Bootstrap
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import Homepage from './page/Homepage';
 import ListProduct from './page/ListProduct';
-import UserManagement from './page/UserManagement';
 
+=======
+import Header from './components/Header';
+import Home from './page/Home';
+import Login from './page/Login';
+import UserManagement from './page/UserManagement'; // Import UserManagement
+import ProductManagement from './page/ProductManagemet';
+import 'bootstrap/dist/css/bootstrap.min.css';
+>>>>>>> 2596c5d98409f39113ca879c7765d199e421f9d4
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -17,6 +25,7 @@ function App() {
   };
   return (
     <Router>
+<<<<<<< HEAD
       <Container fluid>
         <Row>
           {/* Sidebar ở phía bên trái */}
@@ -31,14 +40,22 @@ function App() {
               <Routes>
                 <Route path="/" element={<Homepage  isSidebarOpen={isSidebarOpen}  />} />
                 <Route path="/product-list" element={<ListProduct />} />
-                <Route path="/users" element={<UserManagement />} />
-                                {/* <Route path="/user-settings" element={<UserSettings />} />
+                {/* <Route path="/user-settings" element={<UserSettings />} />
                 <Route path="/permissions" element={<Permissions />} /> */}
               </Routes>
             </div>
           </Col>
         </Row>
       </Container>
+=======
+      <Header />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/users" element={<UserManagement />} />
+        <Route path="/products" element={<ProductManagement />} /> {/* Add this line */}
+      </Routes>
+>>>>>>> 2596c5d98409f39113ca879c7765d199e421f9d4
     </Router>
   );
 }

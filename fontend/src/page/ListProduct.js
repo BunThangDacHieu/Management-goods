@@ -1,13 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext  } from 'react';
 import { Container, Row, Col, Nav, Navbar, Table, Button, Form, InputGroup, Dropdown } from 'react-bootstrap';
+import { AuthContext } from '../context/AuthContext';
+import {getAllProducts} from '../api/auth'
 
 export default function ListProduct() {
   const [activeTab, setActiveTab] = useState('all');
-
+  const [products, setProducts] = useState([]); // State để lưu danh sách sản phẩm
+  const [loading, setLoading] = useState(true); // State để theo dõi trạng thái tải
+  const { token } = useContext(AuthContext);
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   };
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await getAllProducts(token);
+        setProducts(response.data); 
+        setLoading(false); 
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, [token]);
 
+  if (loading) {
+    return <div>Loading...</div>; // Display loading message
+  }
   return (
     <>
       <Navbar bg="light" expand="lg" style={{ margin: "12px" }}>
@@ -103,19 +123,33 @@ export default function ListProduct() {
             <Table striped bordered hover>
               <thead>
                 <tr>
-                  <th>Mã đơn nhập</th>
-                  <th>Mã đơn đặt</th>
-                  <th>Ngày nhập</th>
-                  <th>Trạng thái</th>
-                  <th>Trạng thái nhập</th>
-                  <th>Chi nhánh nhập</th>
+                  <th>Tên sản phẩm</th>
+                  <th>Giá</th>
+                  <th>Số lượng</th>
                   <th>Nhà cung cấp</th>
-                  <th>Nhân viên tạo</th>
-                  <th>Giá trị đơn</th>
+                  <th>Kho hàng</th>
+                  <th>Mô tả</th>
+                  <th>Mã SKU</th>
                 </tr>
               </thead>
               <tbody>
-                {/* Dữ liệu của sản phẩm sẽ được render tại đây */}
+                {products.length > 0 ? (
+                  products.map((product) => (
+                    <tr key={product._id}>
+                      <td>{product.name}</td>
+                      <td>{product.price}</td>
+                      <td>{product.quantity}</td>
+                      <td>{product.supplier ? product.supplier.name : 'N/A'}</td>
+                      <td>{product.warehouse ? product.warehouse.name : 'N/A'}</td>
+                      <td>{product.description}</td>
+                      <td>{product.sku}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="7" className="text-center">Không có sản phẩm nào</td>
+                  </tr>
+                )}
               </tbody>
             </Table>
           </Col>

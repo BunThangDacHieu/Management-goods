@@ -23,6 +23,10 @@ router.route('/register/employee').post(UserController.RegisterEmployee);
 // Route đăng ký cho nhà cung cấp
 router.route('/register/supplier').post(UserController.RegisterSupplier);
 
+//Quên mật khẩu người dùng
+router.route('/forgot-password').post(UserController.ForgotPassword);
+router.route('/reset-password/:token').patch(UserController.ResetPassword);
+
 /-Products--/
 // Chỉ Employee hoặc Manager có thể quản lý sản phẩm
 router.route('/products') 

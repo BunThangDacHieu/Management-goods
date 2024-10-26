@@ -1,42 +1,36 @@
-// page/Login.js
+// page/Register.js
 import React, { useState, useContext } from 'react';
 import { Form, Button, Container, Row, Col, Card, Navbar } from 'react-bootstrap';
-import { managerLogin, commonLogin } from '../api/auth';
 import { AuthContext } from '../context/AuthContext';
+import { registerEmployee, registerSupplier } from '../api/auth'; // Đảm bảo bạn đã tạo hàm registerUser trong api/auth
 import { FaUser, FaLock, FaFacebookF, FaTwitter, FaGoogle, FaLinkedin } from 'react-icons/fa';
 import '../css/Login.css'; // Tạo file CSS để định nghĩa các kiểu cần thiết
 
-const Login = () => {
-  const { setToken } = useContext(AuthContext);
+const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('employee'); // Default role là 'employee'
   const [error, setError] = useState('');
-  const [isManager, setIsManager] = useState(false)
+  const [success, setSuccess] = useState('');
 
-  const handleLogin = async (e) => {
+
+  const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await commonLogin({ email, password });
-      const token = response.data.token;
+      let response;
+      if (role === 'employee') {
+        response = await registerEmployee({ email, password });
+      } else if (role === 'supplier') {
+        response = await registerSupplier({ email, password });
+      }
 
-      // Lưu token vào localStorage
-      localStorage.setItem('token', token);
-      setToken(token);
-
-      // Xác định role người dùng từ token (giả sử token có chứa thông tin vai trò)
-      const role = JSON.parse(atob(token.split('.')[1])).role; // Giả sử token là JWT và chứa thông tin role
-      // Tiến hành điều hướng hoặc xử lý tiếp theo dựa trên role
-      console.log('User role:', role);
-
-      // Điều hướng đến trang khác dựa trên vai trò
-      // if (role === 'manager') {
-      //   // Điều hướng đến trang manager
-      // } else {
-      //   // Điều hướng đến trang người dùng
-      // }
+      if (response && response.status === 200) {
+        setSuccess('Đăng ký thành công! Bạn có thể đăng nhập.');
+        setError('');
+      }
     } catch (err) {
-      setError('Đăng nhập không thành công. Vui lòng thử lại.');
-      console.error('Login error:', err);
+      setError('Đăng ký không thành công. Vui lòng thử lại.');
+      console.error('Register error:', err);
     }
   };
 
@@ -58,9 +52,10 @@ const Login = () => {
         </Col>
         <Col md={6}>
           <Card className="p-4 shadow">
-            <h2 className="text-center">Đăng Nhập</h2>
+            <h2 className="text-center">Đăng Ký</h2>
             {error && <p className="text-danger text-center">{error}</p>}
-            <Form onSubmit={handleLogin}>
+            {success && <p className="text-success text-center">{success}</p>}
+            <Form onSubmit={handleRegister}>
               <Form.Group controlId="formEmail">
                 <Form.Label><FaUser /> Email</Form.Label>
                 <Form.Control
@@ -81,15 +76,18 @@ const Login = () => {
                   required
                 />
               </Form.Group>
-              <div className="d-flex justify-content-between mb-4">
-                <Form.Check type="checkbox" label="Nhớ mật khẩu" />
-                <a href="#!">Quên mật khẩu?</a>
-              </div>
+              <Form.Group controlId="formRole">
+                <Form.Label>Vai trò</Form.Label>
+                <Form.Control as="select" value={role} onChange={(e) => setRole(e.target.value)} required>
+                  <option value="employee">Nhân viên</option>
+                  <option value="supplier">Nhà cung cấp</option>
+                </Form.Control>
+              </Form.Group>
               <Button variant="primary" type="submit" className="w-100 mt-3">
-                Đăng Nhập
+                Đăng Ký
               </Button>
               <p className="small fw-bold mt-2 pt-1 mb-2 text-center">
-                Chưa có tài khoản? <a href="/register" className="link-danger">Đăng ký</a>
+                Đã có tài khoản? <a href="/login" className="link-danger">Đăng nhập</a>
               </p>
             </Form>
           </Card>
@@ -102,7 +100,7 @@ const Login = () => {
           <div className="d-flex justify-content-between">
             <div>Copyright © 2020. Tất cả quyền được bảo lưu.</div>
             <div>
-              <a href="#!" className="text-white mx-3"><FaFacebookF /></a>
+                <a href="#!" className="text-white mx-3"><FaFacebookF /></a>
               <a href="#!" className="text-white mx-3"><FaTwitter /></a>
               <a href="#!" className="text-white mx-3"><FaGoogle /></a>
               <a href="#!" className="text-white mx-3"><FaLinkedin /></a>
@@ -114,4 +112,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

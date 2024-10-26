@@ -48,6 +48,7 @@ export default function Header({isSidebarOpen  }) {
 
                             <Dropdown.Menu>
                                 <Dropdown.Item>Hồ sơ</Dropdown.Item>
+                                <Dropdown.Item>Phân Quyền</Dropdown.Item>
                                 <Dropdown.Item>Cài đặt</Dropdown.Item>
                                 <Dropdown.Divider />
                                 <Dropdown.Item className="text-danger">Đăng xuất</Dropdown.Item>

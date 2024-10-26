@@ -5,16 +5,18 @@
 }
 
 .header-expanded {
-    margin-left: 100px; /* Sidebar mở rộng */
+    margin-left: 60px; /* Sidebar mở rộng */
+    margin-right: auto;
 }
 
 .header-collapsed {
-    margin-left: 60px; /* Không có margin khi sidebar thu gọn */
+    margin-left: 39px; /* Không có margin khi sidebar thu gọn */
+    margin-right: auto;
 }
 
 .header-nav {
     height: 60px;
-    background-color: white !important;
+    background-color: rgba(255, 255, 255, 0.032) !important;
     display: flex; /* Sử dụng flex để căn chỉnh các phần tử bên trong */
     align-items: center; /* Căn giữa chiều dọc */
 }

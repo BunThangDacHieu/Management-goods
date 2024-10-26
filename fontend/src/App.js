@@ -4,8 +4,8 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Container, Row, Col } from 'react-bootstrap'; // Import từ Bootstrap
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
-import MainLayout from './components/MainLayout';
 import Homepage from './page/Homepage';
+import ListProduct from './page/ListProduct';
 
 
 function App() {
@@ -29,8 +29,8 @@ function App() {
             <div className="main-content p-4" style={{ overflowY: 'auto', height: 'calc(100vh - 60px)' }}>
               <Routes>
                 <Route path="/" element={<Homepage  isSidebarOpen={isSidebarOpen}  />} />
-                {/* <Route path="/user-list" element={<UserList />} />
-                <Route path="/user-settings" element={<UserSettings />} />
+                <Route path="/product-list" element={<ListProduct />} />
+                {/* <Route path="/user-settings" element={<UserSettings />} />
                 <Route path="/permissions" element={<Permissions />} /> */}
               </Routes>
             </div>

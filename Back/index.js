@@ -19,12 +19,10 @@ const port = process.env.PORT || 9999;
 
 app.set('view engine', 'ejs');
 
-app.use(cors());
-
 app.use(cors({
-    origin: 'http://localhost:3000', // Chỉ định nguồn hợp lệ
-    credentials: true // Nếu bạn cần hỗ trợ cookie
-}));
+    origin: 'http://localhost:3000', // Địa chỉ frontend
+    credentials: true, // Cho phép gửi cookie cùng request
+  }));
 
 // Middleware
 app.use(express.json()); 

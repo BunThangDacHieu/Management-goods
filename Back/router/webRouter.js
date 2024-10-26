@@ -67,7 +67,6 @@ router.route('/warehouse/:id')
       .put(protect, isAdminAuthenticated,isAuthorized('Manager', 'Employee'),WarehouseController.UpdateWareHouse)
       .delete(protect, isAdminAuthenticated,isAuthorized('Manager', 'Employee'),WarehouseController.DeleteWareHouse);
 
-
 /-supplier-/
 // Supplier quản lý tài khoản và theo dõi đơn hàng của họ
 router.route('/supplier')

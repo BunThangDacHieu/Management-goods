@@ -1,49 +1,45 @@
+// page/Register.js
 import React, { useState, useContext } from 'react';
 import { Form, Button, Container, Row, Col, Card, Navbar } from 'react-bootstrap';
-import { commonLogin } from '../api/auth';
 import { AuthContext } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { registerEmployee, registerSupplier } from '../api/auth';
 import { FaUser, FaLock, FaFacebookF, FaTwitter, FaGoogle, FaLinkedin } from 'react-icons/fa';
 import '../css/Login.css';
 
-const Login = () => {
-  const { setToken } = useContext(AuthContext);
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
+const Register = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('employee'); // Default role là 'employee'
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false); // Trạng thái xử lý đăng ký
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-    setError(''); // Clear error when user types
-  };
-
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    setLoading(true); // Đặt loading là true khi bắt đầu
+    setLoading(true); // Bắt đầu xử lý
+    setError(''); // Đặt lại lỗi trước đó
+    setSuccess(''); // Đặt lại thông báo thành công trước đó
+
     try {
-      const response = await commonLogin(formData); // Sử dụng formData cho email và password
-      const token = response.data.token;
+      const trimmedEmail = email.trim(); // Xóa khoảng trắng
+      const trimmedPassword = password.trim(); // Xóa khoảng trắng
+      let response;
 
-      localStorage.setItem('token', token);
-      setToken(token);
+      if (role === 'employee') {
+        response = await registerEmployee({ email: trimmedEmail, password: trimmedPassword });
+      } else if (role === 'supplier') {
+        response = await registerSupplier({ email: trimmedEmail, password: trimmedPassword });
+      }
 
-      const role = JSON.parse(atob(token.split('.')[1])).role; // Giả sử token là JWT và chứa thông tin role
-      console.log('User role:', role);
-
-      // Điều hướng đến trang khác dựa trên vai trò
-      navigate(role === 'manager' ? '/product-list' : '/manager-dashboard');
+      if (response && response.status === 200) {
+        setSuccess('Đăng ký thành công! Bạn có thể đăng nhập.');
+      }
     } catch (err) {
-      setError('Đăng nhập không thành công. Vui lòng thử lại.');
-      console.error('Login error:', err);
+      const message = err.response?.data?.message || 'Đăng ký không thành công. Vui lòng thử lại.';
+      setError(message); // Hiển thị thông báo lỗi cụ thể từ API
+      console.error('Register error:', err);
     } finally {
-      setLoading(false); // Đặt loading lại thành false khi hoàn tất
+      setLoading(false); // Kết thúc xử lý
     }
   };
 
@@ -65,17 +61,17 @@ const Login = () => {
         </Col>
         <Col md={6}>
           <Card className="p-4 shadow">
-            <h2 className="text-center">Đăng Nhập</h2>
+            <h2 className="text-center">Đăng Ký</h2>
             {error && <p className="text-danger text-center">{error}</p>}
-            <Form onSubmit={handleLogin}>
+            {success && <p className="text-success text-center">{success}</p>}
+            <Form onSubmit={handleRegister}>
               <Form.Group controlId="formEmail">
                 <Form.Label><FaUser /> Email</Form.Label>
                 <Form.Control
                   type="email"
-                  name="email"
                   placeholder="Nhập email"
-                  value={formData.email}
-                  onChange={handleChange}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </Form.Group>
@@ -83,33 +79,31 @@ const Login = () => {
                 <Form.Label><FaLock /> Mật khẩu</Form.Label>
                 <Form.Control
                   type="password"
-                  name="password"
                   placeholder="Nhập mật khẩu"
-                  value={formData.password}
-                  onChange={handleChange}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </Form.Group>
-              <div className="d-flex justify-content-between mb-4">
-                <Form.Check type="checkbox" label="Nhớ mật khẩu" />
-                <a href="#!">Quên mật khẩu?</a>
-              </div>
-              <Button 
-                variant="primary" 
-                type="submit" 
-                className="w-100 mt-3"
-                disabled={loading}
-              >
-                {loading ? 'Đang đăng nhập...' : 'Đăng Nhập'}
+              <Form.Group controlId="formRole">
+                <Form.Label>Vai trò</Form.Label>
+                <Form.Control as="select" value={role} onChange={(e) => setRole(e.target.value)} required>
+                  <option value="employee">Nhân viên</option>
+                  <option value="supplier">Nhà cung cấp</option>
+                </Form.Control>
+              </Form.Group>
+              <Button variant="primary" type="submit" className="w-100 mt-3" disabled={loading}>
+                {loading ? 'Đang Đăng Ký...' : 'Đăng Ký'}
               </Button>
               <p className="small fw-bold mt-2 pt-1 mb-2 text-center">
-                Chưa có tài khoản? <a href="/register" className="link-danger">Đăng ký</a>
+                Đã có tài khoản? <a href="/login" className="link-danger">Đăng nhập</a>
               </p>
             </Form>
           </Card>
         </Col>
       </Row>
 
+      {/* Footer */}
       <footer className="bg-primary text-white py-3">
         <Container fluid>
           <div className="d-flex justify-content-between">
@@ -127,4 +121,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

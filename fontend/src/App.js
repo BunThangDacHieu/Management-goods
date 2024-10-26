@@ -1,42 +1,46 @@
 // App.js
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { Container, Row, Col } from 'react-bootstrap'; // Import từ Bootstrap
-import Sidebar from './components/Sidebar';
-import Header from './components/Header';
+import { BrowserRouter as Router, Route, Routes, useNavigate  } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import Layout from './components/Layout';
 import Homepage from './page/Homepage';
 import ListProduct from './page/ListProduct';
+import Register from './page/Register';
+import Login from './page/Login'; 
 
+function Bao() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const navigate = useNavigate(); 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  return (
+    <AuthProvider navigate={navigate}>
+      
+      
+        <Routes>
+          {/* Route cho trang đăng nhập */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          {/* Bọc tất cả các route còn lại trong Layout */}
+          <Route element={<Layout isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />}>
+            <Route path="/" element={<Homepage isSidebarOpen={isSidebarOpen} />} />
+            <Route path="/product-list" element={<ListProduct />} />
+            {/* Các route khác */}
+          </Route>
+        </Routes>
+       
+      
+      </AuthProvider>
+    
+  );
+}
 
 function App() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-  const toggleSidebar = () => {
-      setIsSidebarOpen(!isSidebarOpen);
-  };
   return (
     <Router>
-      <Container fluid>
-        <Row>
-          {/* Sidebar ở phía bên trái */}
-          <Col xs={2} className="p-0">
-                <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-          </Col>
-
-          {/* Phần Header phía trên Home */}
-          <Col xs={isSidebarOpen ? 10 : 12}  className="p-0 d-flex flex-column">
-            <Header isOpen={isSidebarOpen} />
-            <div className="main-content p-4" style={{ overflowY: 'auto', height: 'calc(100vh - 60px)' }}>
-              <Routes>
-                <Route path="/" element={<Homepage  isSidebarOpen={isSidebarOpen}  />} />
-                <Route path="/product-list" element={<ListProduct />} />
-                {/* <Route path="/user-settings" element={<UserSettings />} />
-                <Route path="/permissions" element={<Permissions />} /> */}
-              </Routes>
-            </div>
-          </Col>
-        </Row>
-      </Container>
+      <Bao />
     </Router>
   );
 }

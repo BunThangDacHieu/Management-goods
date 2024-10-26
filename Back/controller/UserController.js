@@ -4,9 +4,12 @@ const catchAsyncErrors = require('../middleware/catchAsyncErrors');
 const User = require('../model/user');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const generateToken = require('../utils/jwtToken')
-const {ErrorHandler} = require('../middleware/error')
-const Supplier = require('../model/supplier')
+const sendEmail = require('../utils/sendEmail')
+const generateToken = require('../utils/jwtToken');
+const {ErrorHandler} = require('../middleware/error');
+const Supplier = require('../model/supplier');
+const crypto = require('crypto');
+
 
 //-------------Hệ thống đăng nhập và đăng ký người dùng---------------/
 
@@ -181,6 +184,73 @@ exports.Login = catchAsyncErrors(async (req, res, next) => {
 
 
 //------Các method chuyền đến server đối với User/ Hệ thống quản lý người dùng-------//
+exports.ForgotPassword = catchAsyncErrors(async(req, res, next) => {
+    const {email} = req.body;
+
+    const user = await User.findOne({email});
+
+    if(!user) {
+        return next(new ErrorHandler('Không tìm thấy người dùng', 404));
+    }
+
+    const resetToken = user.createPasswordResetToken();
+    await user.save({ validateBeforeSave: false });
+
+    // Create reset URL - consider making this an environment variable
+    const resetUrl = `${req.protocol}://${req.get('host')}/reset-password/${resetToken}`;
+
+    const message = `Vui lòng nhấn vào liên kết để khôi phục mật khẩu của bạn: \n\n ${resetUrl} \n\n Nếu bạn không yêu cầu khôi phục mật khẩu, hãy bỏ qua email này.`;
+
+    try {
+        await sendEmail({
+            email: user.email,
+            subject: 'Khôi phục mật khẩu',
+            message
+        });
+
+        res.status(200).json({
+            success: true,
+            message: `Reset token đã được gửi tới email: ${email}`,
+        });
+    } catch (error) {
+        user.passwordResetToken = undefined;
+        user.passwordResetExpires = undefined;
+        await user.save({ validateBeforeSave: false });
+
+        return next(new ErrorHandler('Có lỗi xảy ra khi gửi email, vui lòng thử lại sau.', 500));
+    }
+});
+// Hàm khôi phục mật khẩu
+exports.ResetPassword = catchAsyncErrors(async (req, res, next) => {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    // Hash token
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    
+    const user = await User.findOne({
+        passwordResetToken: hashedToken,
+        passwordResetExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+        return next(new ErrorHandler('Token không hợp lệ hoặc đã hết hạn', 400));
+    }
+
+    // Update password
+    user.password = password;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: 'Mật khẩu đã được khôi phục thành công'
+    });
+});
+
+
 exports.GetAllUser = catchAsyncErrors(async (req, res, next) => {
     console.log('Request received for GetAllUser');
     const users = await User.find(); 

@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const UserSchema = new mongoose.Schema({
     name: {
@@ -35,12 +36,33 @@ const UserSchema = new mongoose.Schema({
         required: function() {
             return this.role === 'Supplier';
         }
+    },
+    passwordResetToken: {
+        type: String,
+        select: false // Không muốn lưu trường này khi tìm kiếm
+    },
+    passwordResetExpires: {
+        type: Date,
+        select: false // Không muốn lưu trường này khi tìm kiếm
     }
 }, 
     { 
         timestamps: true 
     }
 )
+//
+UserSchema.methods.createPasswordResetToken = function() {
+    // Tạo một token mới
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    
+    // Lưu token và thời gian hết hạn vào cơ sở dữ liệu
+    this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex'); // Băm token để lưu
+    this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // Hết hạn sau 10 phút
+
+    return resetToken; // Trả về token gốc để gửi qua email
+};
+
+
 //Middleware để hash mật khẩu trước khi lưu
 UserSchema.pre("save", async function(next) {
     if (!this.isModified("password")) {

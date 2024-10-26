@@ -1,10 +1,13 @@
 // Header.js
-import React from 'react';
+import React, {useContext} from 'react';
 import { Navbar, Button, Form, InputGroup, Dropdown } from 'react-bootstrap';
 import { Menu, Search, Bell, User } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
 import '../css/Header.css';
 
-export default function Header({isSidebarOpen  }) {
+export default function Header({isSidebarOpen }) {
+    const { handleLogout } = useContext(AuthContext);
+
     return (
         <div className={`header-wrapper ${isSidebarOpen ? 'header-expanded' : 'header-collapsed'}`}>
             <Navbar bg="light" className="header-nav shadow-sm">
@@ -51,7 +54,7 @@ export default function Header({isSidebarOpen  }) {
                                 <Dropdown.Item>Phân Quyền</Dropdown.Item>
                                 <Dropdown.Item>Cài đặt</Dropdown.Item>
                                 <Dropdown.Divider />
-                                <Dropdown.Item className="text-danger">Đăng xuất</Dropdown.Item>
+                                <Dropdown.Item className="text-danger" onClick={handleLogout}>Đăng xuất</Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>
                     </div>

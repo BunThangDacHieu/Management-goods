@@ -38,7 +38,7 @@ const Login = () => {
       console.log('User role:', role);
 
       // Điều hướng đến trang khác dựa trên vai trò
-      navigate(role === 'manager' ? '/product-list' : '/manager-dashboard');
+      navigate(role === 'Manager' ? '/manager-dashboard' : '/product-list');
     } catch (err) {
       setError('Đăng nhập không thành công. Vui lòng thử lại.');
       console.error('Login error:', err);

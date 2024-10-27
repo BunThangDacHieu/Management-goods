@@ -1,12 +1,12 @@
-// Header.js
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 import { Navbar, Button, Form, InputGroup, Dropdown } from 'react-bootstrap';
-import { Menu, Search, Bell, User } from 'lucide-react';
+import { Search, Bell, User } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 import '../css/Header.css';
 
-export default function Header({isSidebarOpen }) {
-    const { handleLogout } = useContext(AuthContext);
+export default function Header({ isSidebarOpen }) {
+    const { userRole, handleLogout } = useContext(AuthContext); // Lấy userRole từ context
 
     return (
         <div className={`header-wrapper ${isSidebarOpen ? 'header-expanded' : 'header-collapsed'}`}>
@@ -51,7 +51,9 @@ export default function Header({isSidebarOpen }) {
 
                             <Dropdown.Menu>
                                 <Dropdown.Item>Hồ sơ</Dropdown.Item>
-                                <Dropdown.Item>Phân Quyền</Dropdown.Item>
+                                {userRole === 'manager' && ( // Kiểm tra vai trò ở đây
+                                    <Dropdown.Item as={Link} to="/admin-dashboard">Phân Quyền</Dropdown.Item>
+                                )}
                                 <Dropdown.Item>Cài đặt</Dropdown.Item>
                                 <Dropdown.Divider />
                                 <Dropdown.Item className="text-danger" onClick={handleLogout}>Đăng xuất</Dropdown.Item>

@@ -1,45 +1,45 @@
 // page/Register.js
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Form, Button, Container, Row, Col, Card, Navbar } from 'react-bootstrap';
-import { AuthContext } from '../context/AuthContext';
 import { registerEmployee, registerSupplier } from '../api/auth';
-import { FaUser, FaLock, FaFacebookF, FaTwitter, FaGoogle, FaLinkedin } from 'react-icons/fa';
+import { FaUser, FaLock, FaFacebookF, FaTwitter,FaPhoneAlt, FaGoogle,FaAddressBook , FaLinkedin  } from 'react-icons/fa';
+import { MdOutlineAlternateEmail } from "react-icons/md";
+import { AiFillRightCircle } from "react-icons/ai";
+import {useNavigate} from 'react-router-dom'
 import '../css/Login.css';
 
 const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('employee'); // Default role là 'employee'
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState('employee');
+  const [name, setName] = useState('');
+  const [address, setAddress] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(false); // Trạng thái xử lý đăng ký
-
+  const navigate = useNavigate();
   const handleRegister = async (e) => {
     e.preventDefault();
-    setLoading(true); // Bắt đầu xử lý
-    setError(''); // Đặt lại lỗi trước đó
-    setSuccess(''); // Đặt lại thông báo thành công trước đó
-
     try {
-      const trimmedEmail = email.trim(); // Xóa khoảng trắng
-      const trimmedPassword = password.trim(); // Xóa khoảng trắng
       let response;
 
       if (role === 'employee') {
-        response = await registerEmployee({ email: trimmedEmail, password: trimmedPassword });
+        response = await registerEmployee({ name, email, password, confirmPassword });
       } else if (role === 'supplier') {
-        response = await registerSupplier({ email: trimmedEmail, password: trimmedPassword });
+        response = await registerSupplier({ name, address, contactEmail: email, password, confirmPassword, contactPhone });
       }
 
       if (response && response.status === 200) {
         setSuccess('Đăng ký thành công! Bạn có thể đăng nhập.');
+        setError('');
       }
+      setTimeout(() => {
+        navigate('/login'); // Điều hướng đến trang đăng nhập
+      }, 2000);
     } catch (err) {
-      const message = err.response?.data?.message || 'Đăng ký không thành công. Vui lòng thử lại.';
-      setError(message); // Hiển thị thông báo lỗi cụ thể từ API
+      setError('Đăng ký không thành công. Vui lòng thử lại.');
       console.error('Register error:', err);
-    } finally {
-      setLoading(false); // Kết thúc xử lý
     }
   };
 
@@ -65,8 +65,19 @@ const Register = () => {
             {error && <p className="text-danger text-center">{error}</p>}
             {success && <p className="text-success text-center">{success}</p>}
             <Form onSubmit={handleRegister}>
+              <Form.Group controlId="formName">
+                <Form.Label><FaUser /> Tên</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Nhập tên"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </Form.Group>
+              
               <Form.Group controlId="formEmail">
-                <Form.Label><FaUser /> Email</Form.Label>
+                <Form.Label><MdOutlineAlternateEmail /> Email</Form.Label>
                 <Form.Control
                   type="email"
                   placeholder="Nhập email"
@@ -75,6 +86,7 @@ const Register = () => {
                   required
                 />
               </Form.Group>
+              
               <Form.Group controlId="formPassword">
                 <Form.Label><FaLock /> Mật khẩu</Form.Label>
                 <Form.Control
@@ -85,15 +97,57 @@ const Register = () => {
                   required
                 />
               </Form.Group>
+
+              <Form.Group controlId="formConfirmPassword">
+                <Form.Label><FaLock /> Xác nhận mật khẩu</Form.Label>
+                <Form.Control
+                  type="password"
+                  placeholder="Nhập lại mật khẩu"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </Form.Group>
+
+              
+
+              {/* Conditional fields for 'supplier' role */}
+              {role === 'supplier' && (
+                <>
+                  <Form.Group controlId="formAddress">
+                    <Form.Label><FaAddressBook /> Địa chỉ</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="Nhập địa chỉ"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      required
+                    />
+                  </Form.Group>
+
+                  <Form.Group controlId="formContactPhone">
+                    <Form.Label><FaPhoneAlt /> Số điện thoại liên hệ</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="Nhập số điện thoại"
+                      value={contactPhone}
+                      onChange={(e) => setContactPhone(e.target.value)}
+                      required
+                    />
+                  </Form.Group>
+                </>
+              )}
               <Form.Group controlId="formRole">
-                <Form.Label>Vai trò</Form.Label>
+                <Form.Label><AiFillRightCircle />
+                Vai trò</Form.Label>
                 <Form.Control as="select" value={role} onChange={(e) => setRole(e.target.value)} required>
                   <option value="employee">Nhân viên</option>
                   <option value="supplier">Nhà cung cấp</option>
                 </Form.Control>
               </Form.Group>
-              <Button variant="primary" type="submit" className="w-100 mt-3" disabled={loading}>
-                {loading ? 'Đang Đăng Ký...' : 'Đăng Ký'}
+
+              <Button variant="primary" type="submit" className="w-100 mt-3">
+                Đăng Ký
               </Button>
               <p className="small fw-bold mt-2 pt-1 mb-2 text-center">
                 Đã có tài khoản? <a href="/login" className="link-danger">Đăng nhập</a>
@@ -103,7 +157,6 @@ const Register = () => {
         </Col>
       </Row>
 
-      {/* Footer */}
       <footer className="bg-primary text-white py-3">
         <Container fluid>
           <div className="d-flex justify-content-between">

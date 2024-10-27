@@ -154,6 +154,7 @@ exports.RegisterSupplier = catchAsyncErrors(async(req, res, next) =>{
 
 // Đăng nhập người dùng
 exports.Login = catchAsyncErrors(async (req, res, next) => {
+    try {
         const { password, email } = req.body;
 
         if (!password || !email ) {
@@ -162,8 +163,8 @@ exports.Login = catchAsyncErrors(async (req, res, next) => {
 
         const user = await User.findOne({
             $or: [
-                { email }, // Tìm theo email
-                { supplier: { $exists: true }, contactEmail: email } // Tìm theo contactEmail nếu là nhà cung cấp
+                { email },
+                { supplier: { $exists: true }, contactEmail: email }
             ]
         }).select("+password");
 
@@ -177,8 +178,11 @@ exports.Login = catchAsyncErrors(async (req, res, next) => {
         }
 
         // Tạo và gửi token
-        // Gửi phản hồi với token
         return generateToken(user, "Đăng nhập thành công", 200, res);
+    } catch (error) {
+        console.error("Login error:", error); // Ghi log lỗi cho dễ theo dõi
+        return res.status(500).json({ success: false, message: "Đã có lỗi xảy ra trên server." });
+    }
 });
 
 

@@ -30,12 +30,12 @@ router.route('/reset-password/:token').patch(UserController.ResetPassword);
 /-Products--/
 // Chỉ Employee hoặc Manager có thể quản lý sản phẩm
 router.route('/products') 
-      .get(protect, isAdminAuthenticated, isAuthorized('Manager', 'Employee'), ProductController.GetAllProducts)
-      .post(protect, isAdminAuthenticated, isAuthorized('Manager', 'Employee') ,ProductController.CreateProduct);
+      .get(protect, ProductController.GetAllProducts)
+      .post(protect, ProductController.CreateProduct);
 
 router.route('/product/:id')
       .get(ProductController.getProductbyId)
-      .put(protect, isAdminAuthenticated, isAuthorized('Manager', 'Employee') ,ProductController.UpdateProduct)
+      .put(protect, isAdminAuthenticated,isSupplierAuthenticated, isAuthorized('Manager', 'Employee') ,ProductController.UpdateProduct)
       .delete(protect, isAdminAuthenticated,isAuthorized('Manager', 'Employee'), ProductController.DeleteProduct);
 
 // Chỉ Manager có quyền quản lý danh mục

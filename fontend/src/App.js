@@ -7,6 +7,7 @@ import Homepage from './page/Homepage';
 import ListProduct from './page/ListProduct';
 import Register from './page/Register';
 import Login from './page/Login'; 
+import AdminDashboard from './page/AdminDashboard';
 
 function Bao() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -27,6 +28,7 @@ function Bao() {
           <Route element={<Layout isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />}>
             <Route path="/" element={<Homepage isSidebarOpen={isSidebarOpen} />} />
             <Route path="/product-list" element={<ListProduct />} />
+            <Route path="/manager-dashboard" element={<AdminDashboard />} />
             {/* Các route khác */}
           </Route>
         </Routes>

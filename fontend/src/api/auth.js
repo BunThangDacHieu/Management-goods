@@ -18,8 +18,7 @@ export const registerEmployee = (data) => {
 export const registerSupplier = (data) => axios.post(`${API_URL}/register/supplier`, data);
 
 // Đăng nhập tài khoản
-export const managerLogin = (data) => axios.post(`${API_URL}/login/manager`, data);
-export const commonLogin = async (data) => {
+export const SystemLogin = async (data) => {
   const { email, password } = data;
   return await axios.post(`${API_URL}/login`, { email, password });
 };
@@ -80,7 +79,7 @@ export const updateUser = (id, data, token) =>
   axios.put(`${API_URL}/user/${id}`, data, authHeader(token));
 export const deleteUserById = (id, token) =>
   axios.delete(`${API_URL}/user/${id}`, authHeader(token));
-
+  
 // ===== Warehouse =====
 
 // Lấy tất cả kho
@@ -119,7 +118,7 @@ export const deleteSupplierById = (id, token) =>
 // ===== Orders =====
 
 // Lấy tất cả đơn hàng
-export const getAllOrders = (token) =>
+export const getAllOrders = (token) => 
   axios.get(`${API_URL}/order`, authHeader(token));
 
 // Tạo mới đơn hàng (Supplier)

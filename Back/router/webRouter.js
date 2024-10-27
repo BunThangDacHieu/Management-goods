@@ -11,9 +11,6 @@ const {protect ,isAdminAuthenticated, isSupplierAuthenticated, isAuthorized} = r
 // Route đăng ký cho quản lý
 router.post('/register/manager', UserController.RegisterManager);
 
-// Route đăng nhập cho quản lý
-router.post('/login/manager', UserController.ManagerLogin);
-
 // Route đăng nhập chung
 router.route('/login').post(UserController.Login);
 
@@ -31,7 +28,7 @@ router.route('/reset-password/:token').patch(UserController.ResetPassword);
 // Chỉ Employee hoặc Manager có thể quản lý sản phẩm
 router.route('/products') 
       .get(protect, ProductController.GetAllProducts)
-      .post(protect, ProductController.CreateProduct);
+      .post(protect,isAdminAuthenticated, isAuthorized('Employee', 'Manager'), ProductController.CreateProduct);
 
 router.route('/product/:id')
       .get(ProductController.getProductbyId)
@@ -52,11 +49,12 @@ router.route('/category/:id')
 // Chỉ Manager có quyền quản lý người dùng
 /-User-/
 router.route('/user')
-      .get(protect, isAdminAuthenticated, isAuthorized('Manager'), UserController.GetAllUser);
+//protect, isAdminAuthenticated, isAuthorized('Manager'),
+      .get( UserController.GetAllUser);
       // .post(protect, isAdminAuthenticated, isAuthorized('Manager') ,UserController.CreateNewUser);
 
 router.route('/user/:id')
-      .get(protect, isAdminAuthenticated, isAuthorized('Manager'),UserController.FindUserbyUserId)
+      .get(UserController.FindUserbyUserId)
       .put(protect, isAdminAuthenticated, isAuthorized('Manager'),UserController.UpdateUserInfomation)
       .delete(protect, isAdminAuthenticated, isAuthorized('Manager'),UserController.DeleteUserById);
 
@@ -85,7 +83,7 @@ router.route('/supplier/:id')
 /-Orders-/
 // Supplier tạo đơn hàng cung cấp, Employee xử lý đơn hàng
 router.route('/order')
-      .get(protect, isAdminAuthenticated, isAuthorized('Manager', 'Employee'),OrderController.GetAllOrder)
+      .get(protect, OrderController.GetAllOrder)
       .post(protect, isSupplierAuthenticated, OrderController.CreateOrder); // Supplier tạo đơn hàng
 
 router.route('/order/:id')

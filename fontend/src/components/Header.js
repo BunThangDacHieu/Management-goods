@@ -1,12 +1,13 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 // Header.js
-import React from 'react';
+import React, {useContext} from 'react';
 import { Navbar, Button, Form, InputGroup, Dropdown } from 'react-bootstrap';
 import { Menu, Search, Bell, User } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
 import '../css/Header.css';
 
-export default function Header({isSidebarOpen  }) {
+export default function Header({isSidebarOpen }) {
+    const { handleLogout } = useContext(AuthContext);
+
     return (
         <div className={`header-wrapper ${isSidebarOpen ? 'header-expanded' : 'header-collapsed'}`}>
             <Navbar bg="light" className="header-nav shadow-sm">
@@ -53,7 +54,7 @@ export default function Header({isSidebarOpen  }) {
                                 <Dropdown.Item>Phân Quyền</Dropdown.Item>
                                 <Dropdown.Item>Cài đặt</Dropdown.Item>
                                 <Dropdown.Divider />
-                                <Dropdown.Item className="text-danger">Đăng xuất</Dropdown.Item>
+                                <Dropdown.Item className="text-danger" onClick={handleLogout}>Đăng xuất</Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>
                     </div>
@@ -62,36 +63,3 @@ export default function Header({isSidebarOpen  }) {
         </div>
     );
 }
-=======
-=======
->>>>>>> 2596c5d98409f39113ca879c7765d199e421f9d4
-// components/Header.js
-import React from 'react';
-import { Navbar, Nav, Container } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-
-function Header() {
-  return (
-    <Navbar bg="light" expand="lg">
-      <Container>
-        <Navbar.Brand as={Link} to="/">Group2</Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <Nav.Link as={Link} to="/">Home</Nav.Link>
-            <Nav.Link as={Link} to="/login">Login</Nav.Link>
-            <Nav.Link as={Link} to="/users">User Management</Nav.Link>
-            <Nav.Link as={Link} to="/products">Product Management</Nav.Link>
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
-  );
-}
-
-<<<<<<< HEAD
-export default Header;
->>>>>>> 2596c5d98409f39113ca879c7765d199e421f9d4
-=======
-export default Header;
->>>>>>> 2596c5d98409f39113ca879c7765d199e421f9d4

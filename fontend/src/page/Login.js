@@ -7,7 +7,7 @@ import { FaUser, FaLock, FaFacebookF, FaTwitter, FaGoogle, FaLinkedin } from 're
 import '../css/Login.css';
 
 const Login = () => {
-  const { setToken, setUserRole } = useContext(AuthContext); // Lấy setUserRole từ context
+  const { setToken, setUserRole, userId, updateToken  } = useContext(AuthContext); // Lấy setUserRole từ context
   const [formData, setFormData] = useState({
       email: '',
       password: ''
@@ -25,26 +25,26 @@ const Login = () => {
   };
 
   const handleLogin = async (e) => {
-      e.preventDefault();
-      setLoading(true);
-      try {
-          const response = await SystemLogin(formData);
-          const token = response.data.token;
-          localStorage.setItem('token', token);
-          setToken(token);
-
-          const role = JSON.parse(atob(token.split('.')[1])).role; // Giả sử token là JWT và chứa thông tin role
-          console.log('User role:', role);
-          setUserRole(role); // Cập nhật vai trò người dùng
-
-          // Điều hướng đến trang khác dựa trên vai trò
-          navigate(role === 'Manager' ? '/manager-dashboard' : '/product-list');
-      } catch (err) {
-          setError('Đăng nhập không thành công. Vui lòng thử lại.');
-          console.error('Login error:', err);
-      } finally {
-          setLoading(false);
-      }
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const response = await SystemLogin(formData);
+      const { token } = response.data;
+      if (!token) throw new Error('No token received');
+      
+      localStorage.setItem('token', token);
+      updateToken(token);
+      
+      const role = JSON.parse(atob(token.split('.')[1])).role;
+      const userId = JSON.parse(atob(token.split('.')[1])).id;
+  
+      navigate(role === 'Manager' ? '/manager-dashboard' : `/list-order/${userId}`);
+    } catch (err) {
+      setError('Đăng nhập không thành công. Vui lòng thử lại.');
+      console.error('Login error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -92,7 +92,7 @@ const Login = () => {
                           </Form.Group>
                           <div className="d-flex justify-content-between mb-4">
                               <Form.Check type="checkbox" label="Nhớ mật khẩu" />
-                              <a href="#!">Quên mật khẩu?</a>
+                              <a href="forgot-password">Quên mật khẩu?</a>
                           </div>
                           <Button 
                               variant="primary" 

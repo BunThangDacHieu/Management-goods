@@ -165,7 +165,7 @@ exports.Login = catchAsyncErrors(async (req, res, next) => {
 exports.ForgotPassword = catchAsyncErrors(async(req, res, next) => {
     const {email} = req.body;
 
-    const user = await User.findOne({email});
+    const user = await User.findOne({ email: email });
 
     if(!user) {
         return next(new ErrorHandler('Không tìm thấy người dùng', 404));

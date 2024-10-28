@@ -29,10 +29,11 @@ export const logout = () => localStorage.removeItem('token');
 export const forgotPassword = (email) => 
   axios.post(`${API_URL}/forgot-password`, { email });
 
-// Đặt lại mật khẩu
-export const resetPassword = (token, newPassword) => 
-  axios.patch(`${API_URL}/reset-password/${token}`, { password: newPassword });
-
+export const resetPassword = async (token, newPassword) => {
+  return await axios.patch(`${API_URL}/reset-password/${token}`, {
+      password: newPassword,
+  });
+};
 // ===== Products =====
 
 // Lấy tất cả sản phẩm

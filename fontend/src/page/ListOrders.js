@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Container, Row, Col,Modal, Navbar, Table, Button, Form, InputGroup, Dropdown } from 'react-bootstrap';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
+import { Container, Row, Col,Modal, Navbar, Table, Button,Spinner, Form, InputGroup, Dropdown } from 'react-bootstrap';
 import { AuthContext } from '../context/AuthContext';
 import { getAllOrders } from '../api/auth'; // Cập nhật hàm gọi API
 import { IoMdAddCircleOutline } from "react-icons/io";
@@ -8,8 +8,8 @@ export default function ListOrder() {
   const [activeTab, setActiveTab] = useState('all');
   const [orders, setOrders] = useState([]); // Sửa thành orders
   const [loading, setLoading] = useState(true);
-  const { token } = useContext(AuthContext);
-
+  const { token, userId } = useContext(AuthContext);
+  
   const [filteredOrders, setFilteredOrders] = useState([]); // Sửa thành filteredOrders
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -24,53 +24,62 @@ export default function ListOrder() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await getAllOrders(token); // Cập nhật gọi API
+        const response = await getAllOrders(token); // Giả sử `getAllOrders` là API lấy tất cả các orders
         const ordersData = Array.isArray(response.data) ? response.data : [];
-        console.log("Fetched orders:", ordersData);
-        setOrders(ordersData); 
-        setFilteredOrders(ordersData); 
-        setLoading(false); 
+  
+        const filteredOrders = ordersData.filter(
+          order => order.createdBy === userId || order.user?._id === userId
+        );
+  
+        setOrders(filteredOrders); // Cập nhật danh sách orders đã lọc
+        setLoading(false);
       } catch (error) {
-        console.error('Error fetching orders:', error);
+        console.error("Error fetching orders:", error);
         setLoading(false);
       }
     };
-    fetchOrders();
-  }, [token]);
-
-  const handleFilter = () => {
+  
+    if (userId) { // Chỉ gọi API khi userId đã có giá trị
+      fetchOrders();
+    }
+  }, [token, userId]);
+  
+  
+  
+  const handleFilter = useCallback(() => {
     const filtered = orders.filter(order => {
-      const matchesSearch = 
-        order.orderCode.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      const matchesSearch =
+        order.orderCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.purchaseOrderCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (order.user && order.user.name.toLowerCase().includes(searchTerm.toLowerCase()));
-        
-      const matchesStatus = statusFilter ? order.status === statusFilter : true; 
   
-      return matchesSearch && matchesStatus; 
+      const matchesStatus = statusFilter ? order.status === statusFilter : true;
+  
+      return matchesSearch && matchesStatus;
     });
   
     setFilteredOrders(filtered);
-  };
+  }, [searchTerm, statusFilter, orders]);
 
   useEffect(() => {
     handleFilter();
-  }, [searchTerm, statusFilter, orders]);
+  }, [handleFilter]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="d-flex justify-content-center align-items-center min-vh-100">
+        <Spinner animation="border" variant="primary" />
+      </div>
+    );
   }
-  const handleShowModal = () => setShowModal(true);
-  const handleCloseModal = () => setShowModal(false);
-
   
   return (
     <>
       <Navbar bg="light" expand="lg" style={{ margin: "12px" }}>
         <Container fluid>
           <div className="ms-auto">
-            <Button variant="success" onClick={handleShowModal}>
-              <IoMdAddCircleOutline/>Tạo đơn hàng
+            <Button variant="success">
+              <IoMdAddCircleOutline/>Tạo đơn nhập hàng
             </Button>
           </div>
         </Container>
@@ -88,15 +97,15 @@ export default function ListOrder() {
             </Button>
             <Button 
               variant="light" 
-              onClick={() => setActiveTab('in-progress')} 
-              className={`mx-1 ${activeTab === 'in-progress' ? 'border-bottom border-primary' : ''}`}
+              onClick={() => setActiveTab('Đang giao dịch')} 
+              className={`mx-1 ${activeTab === 'Đang giao dịch' ? 'border-bottom border-primary' : ''}`}
             >
               Đang giao dịch
             </Button>
             <Button 
               variant="light" 
-              onClick={() => setActiveTab('completed')} 
-              className={`mx-1 ${activeTab === 'completed' ? 'border-bottom border-primary' : ''}`}
+              onClick={() => setActiveTab('Hoàn thành')} 
+              className={`mx-1 ${activeTab === 'Hoàn thành' ? 'border-bottom border-primary' : ''}`}
             >
               Hoàn Thành
             </Button>
@@ -110,7 +119,7 @@ export default function ListOrder() {
                 placeholder="Tìm mã đơn hàng, đơn đặt hàng, tên người dùng" 
                 aria-label="Search"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)} // Update search term
+                onChange={(e) => setSearchTerm(e.target.value)} 
               />
             </InputGroup>
           </Col>
@@ -123,11 +132,20 @@ export default function ListOrder() {
                 <Dropdown.Item onClick={() => setStatusFilter('')}>Tất cả</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
-            <Button variant="primary" className="mx-1" onClick={handleFilter}>Lọc</Button>
+            <Dropdown>
+              <Dropdown.Toggle variant="light">Trạng thái nhập</Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={() => setStatusFilter('Chưa nhập')}>Chưa nhập</Dropdown.Item>
+                <Dropdown.Item onClick={() => setStatusFilter('Đã nhập')}>Đã nhập</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+            <Button variant="primary" onClick={handleFilter}>Lọc</Button>
           </Col>
         </Row>
 
-        <Row>
+
+        <Row className="mb-3">
+          {/* Bảng và các nút lọc */}
           <Col>
             <Table striped bordered hover>
               <thead>
@@ -160,7 +178,7 @@ export default function ListOrder() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" className="text-center">Không có đơn hàng nào</td>
+                    <td colSpan="9" className="text-center">Không có đơn hàng nào</td>
                   </tr>
                 )}
               </tbody>
@@ -168,38 +186,6 @@ export default function ListOrder() {
           </Col>
         </Row>
       </Container>
-
-      {/* Modal for creating order */}
-      <Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Tạo Đơn Hàng Mới</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {/* Nội dung modal để tạo đơn hàng */}
-          <Form>
-            <Form.Group controlId="formOrderCode">
-              <Form.Label>Mã đơn hàng</Form.Label>
-              <Form.Control type="text" placeholder="Nhập mã đơn hàng" />
-            </Form.Group>
-            <Form.Group controlId="formPurchaseOrderCode">
-              <Form.Label>Mã đơn đặt hàng</Form.Label>
-              <Form.Control type="text" placeholder="Nhập mã đơn đặt hàng" />
-            </Form.Group>
-            {/* Thêm các trường cần thiết khác cho đơn hàng ở đây */}
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Đóng
-          </Button>
-          <Button variant="primary" onClick={() => {
-            // Xử lý tạo đơn hàng ở đây
-            handleCloseModal();
-          }}>
-            Tạo Đơn Hàng
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </>
   );
 }

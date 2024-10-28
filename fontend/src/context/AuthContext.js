@@ -6,20 +6,23 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('token') || null);
     const [userRole, setUserRole] = useState(null);
+    const [userId, setUserId] = useState(null); 
     const [user, setUser] = useState(null);
     const [allUser, setAllUsers] = useState([]);
 
     const updateToken = (newToken) => {
-      setToken(newToken);
-      localStorage.setItem('token', newToken);
-      const role = JSON.parse(atob(newToken.split('.')[1])).role; // Lấy vai trò từ token
-      setUserRole(role); // Cập nhật vai trò người dùng
-  };
+        setToken(newToken);
+        localStorage.setItem('token', newToken);
+
+        const decodedToken = JSON.parse(atob(newToken.split('.')[1]));
+        setUserRole(decodedToken.role);
+        setUserId(decodedToken.id);
+    };
   const fetchUserInfo = async () => {
     if (!token) return; // Kiểm tra token trước khi gọi API
     try {
         const decodedToken = JSON.parse(atob(token.split('.')[1]));
-        const userId = decodedToken.id; // Giả sử 'id' được lưu trong payload của token
+        const userId = decodedToken.id; 
 
         const response = await getUserById(userId, token); 
         setUser(response.data);
@@ -53,12 +56,13 @@ useEffect(() => {
     const handleLogout = () => {
         apiLogout();
         setUserRole(null); // Reset vai trò khi đăng xuất
+        setUserId(null);
         setToken(null); // Reset token
         localStorage.removeItem('token'); // Xóa token
     };
-
+    
     return (
-        <AuthContext.Provider value={{ token,user, setUserRole,updateToken, userRole, handleLogout, setToken }}>
+        <AuthContext.Provider value={{ token,user,userId, setUserRole,updateToken, userRole, handleLogout, setToken }}>
             {children}
         </AuthContext.Provider>
     );

@@ -6,12 +6,10 @@ import { useParams } from 'react-router-dom';
 
 export default function Profile() {
     const { id } = useParams(); // Lấy ID từ URL
-    const { token } = useContext(AuthContext);
+    const {token } = useContext(AuthContext);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    console.log(id);
-    
     useEffect(() => {
         const fetchUserProfile = async () => {
             console.log('Fetching user with ID:', id);

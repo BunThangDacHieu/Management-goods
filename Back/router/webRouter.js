@@ -86,6 +86,9 @@ router.route('/order')
       .get(protect, OrderController.GetAllOrder)
       .post(protect, isSupplierAuthenticated, OrderController.CreateOrder); // Supplier tạo đơn hàng
 
+// Route cho lấy danh sách đơn hàng theo userId
+router.get('/order/user/:userId', protect, OrderController.GetOrdersByUserId);
+
 router.route('/order/:id')
       .get(protect, isAdminAuthenticated, isAuthorized('Manager', 'Employee'),OrderController.GetOrderById)
       .put(protect, isAdminAuthenticated, isAuthorized('Manager', 'Employee'),OrderController.UpdateOrder)

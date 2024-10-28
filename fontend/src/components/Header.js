@@ -37,7 +37,7 @@ export default function Header({ isSidebarOpen }) {
 
                             <Dropdown.Menu>
                                 {user && ( // Kiểm tra `user` trước khi truy cập `user.id`
-                                    <Dropdown.Item as={Link} to={`/user/${user.id}`}>Hồ sơ</Dropdown.Item>
+                                    <Dropdown.Item as={Link} to={`/profile/${user._id}`}>Hồ sơ</Dropdown.Item>
                                 )}
 
                                 {userRole === 'Manager' && ( // Kiểm tra vai trò ở đây

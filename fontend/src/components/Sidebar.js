@@ -16,7 +16,7 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
             icon: <Package size={20} />, 
             label: 'Quản lý hàng hóa', 
             subItems: [
-                { path: '/product-list', label: 'Danh sách sản phẩm' },
+                { path: '/list-order/:userId', label: 'Danh sách sản phẩm' },
                 { path: '/inventory', label: 'Quản lý kho' },
                 { path: '/', label:'Nhập hàng'}
             ]

@@ -39,13 +39,6 @@ export default function AdminDashboard({token}) {
         <Container fluid>
           <Navbar.Brand style={{ fontSize: '20px', fontFamily: 'Oswald', fontStyle: 'Bold' }}>Hệ thống quản lý</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="ms-auto">
-              <Nav.Link>Vay vốn kinh doanh</Nav.Link>
-              <Nav.Link>Trợ giúp</Nav.Link>
-              <Nav.Link>Góp ý</Nav.Link>
-            </Nav>
-          </Navbar.Collapse>
         </Container>
         </Navbar>
         <Container>

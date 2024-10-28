@@ -35,7 +35,6 @@ exports.protect = catchAsyncErrors(async (req, res, next) => {
 
 
 // Middleware phân quyền người dùng Manager, Employee
-// Middleware phân quyền người dùng Manager, Employee
 exports.isAdminAuthenticated = catchAsyncErrors(async (req, res, next) => {
     let token = req.cookies.adminToken || req.cookies.employeeToken || (req.headers.authorization && req.headers.authorization.startsWith('Bearer') ? req.headers.authorization.split(' ')[1] : null);
 

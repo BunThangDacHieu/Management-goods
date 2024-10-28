@@ -29,8 +29,6 @@ const generateToken = (user, message, statusCode, res) => {
         sameSite: 'strict',
       })
       .json({
-        success: true,
-        message,
         user,
         token,
       });

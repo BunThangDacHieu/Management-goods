@@ -45,31 +45,6 @@ exports.RegisterManager = catchAsyncErrors(async (req, res, next) => {
     return generateToken(user, "Đăng ký thành công", 201, res);
 });
 
-// Đăng nhập người quản lý (Manager)
-exports.ManagerLogin = catchAsyncErrors(async (req, res, next) => {
-    const { password, email } = req.body;
-
-    // Xác nhận thông tin được nhập
-    if (!password || !email) {
-        return next(new ErrorHandler("Nhập thông tin đầy đủ", 400));
-    }
-
-    // Tìm người dùng theo email
-    const user = await User.findOne({ email, role: 'Manager' }).select("+password");
-    if (!user) {
-        return next(new ErrorHandler("Sai mật khẩu hoặc email", 400));
-    }
-
-    // Kiểm tra mật khẩu
-    const isPasswordMatch = await user.comparePassword(password);
-    if (!isPasswordMatch) {
-        return next(new ErrorHandler("Sai Email hoặc Password!", 400));
-    }
-
-    // Gửi phản hồi với token
-    return generateToken(user, "Đăng nhập thành công", 200, res);
-});
-
 
 //Đăng ký nhân viên(Employee)
 exports.RegisterEmployee = catchAsyncErrors(async (req, res, next) => {
@@ -154,31 +129,34 @@ exports.RegisterSupplier = catchAsyncErrors(async(req, res, next) =>{
 
 // Đăng nhập người dùng
 exports.Login = catchAsyncErrors(async (req, res, next) => {
-        const { password, email } = req.body;
+    const { password, email } = req.body;
 
-        if (!password || !email ) {
-            return next(new ErrorHandler("Nhập thông tin đầy đủ", 400));
-        }
+    // Xác nhận thông tin được nhập
+    if (!password || !email) {
+        return next(new ErrorHandler("Nhập thông tin đầy đủ", 400));
+    }
 
-        const user = await User.findOne({
-            $or: [
-                { email }, // Tìm theo email
-                { supplier: { $exists: true }, contactEmail: email } // Tìm theo contactEmail nếu là nhà cung cấp
-            ]
-        }).select("+password");
+    // Tìm người dùng theo email
+    const user = await User.findOne({ 
+        $or: [
+            { email },
+            { supplier: { $exists: true }, contactEmail: email }
+        ]
+    }).select("+password");
 
-        if (!user) {
-            return next(new ErrorHandler("Sai mật khẩu hoặc email", 400));
-        }
+    // Kiểm tra xem người dùng có tồn tại không
+    if (!user) {
+        return next(new ErrorHandler("Sai mật khẩu hoặc email", 400));
+    }
 
-        const isPasswordMatch = await user.comparePassword(password);
-        if (!isPasswordMatch) {
-            return next(new ErrorHandler("Sai Email hoặc Password!", 400));
-        }
+    // Kiểm tra mật khẩu
+    const isPasswordMatch = await user.comparePassword(password);
+    if (!isPasswordMatch) {
+        return next(new ErrorHandler("Sai Email hoặc Password!", 400));
+    }
 
-        // Tạo và gửi token
-        // Gửi phản hồi với token
-        return generateToken(user, "Đăng nhập thành công", 200, res);
+    // Gửi phản hồi với token
+    return generateToken(user, "Đăng nhập thành công", 200, res);
 });
 
 
@@ -187,7 +165,7 @@ exports.Login = catchAsyncErrors(async (req, res, next) => {
 exports.ForgotPassword = catchAsyncErrors(async(req, res, next) => {
     const {email} = req.body;
 
-    const user = await User.findOne({email});
+    const user = await User.findOne({ email: email });
 
     if(!user) {
         return next(new ErrorHandler('Không tìm thấy người dùng', 404));
@@ -260,10 +238,7 @@ exports.GetAllUser = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler('Không tìm thấy người dùng!', 404)); // Chỉ gửi một lần
     }
 
-    res.status(200).json({
-        success: true,
-        users
-    });
+    res.status(200).json(users);
 });
 //Tạo người dùng mới trong cơ sở dữ liệu
 // exports.CreateNewUser = catchAsyncErrors(async (req, res) => {
@@ -312,15 +287,13 @@ exports.FindUserbyUserId = catchAsyncErrors(async (req, res) => {
             return res.status(400).json({ message: 'Invalid user ID format.' });
         }
         // Check phân quyền
-        if (req.user.role !== 'admin' && req.user.id !== id && req.user.role !=='manager') {
-            return res.status(403).json({ success: false, message: 'Access denied.' });
-        }
+
         // Tìm người dùng qua ID
         const users = await User.findById(id).select('-password'); // Exclude the password field
         if (!users) {
             return res.status(404).json({ message: 'User not found' });
         }
-        res.status(200).json({ success: true, data: users });
+        res.status(200).json(users);
 });
 //Cập nhật Người 
 exports.UpdateUserInfomation = catchAsyncErrors(async (req, res) =>{

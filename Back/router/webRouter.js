@@ -11,9 +11,6 @@ const {protect ,isAdminAuthenticated, isSupplierAuthenticated, isAuthorized} = r
 // Route đăng ký cho quản lý
 router.post('/register/manager', UserController.RegisterManager);
 
-// Route đăng nhập cho quản lý
-router.post('/login/manager', UserController.ManagerLogin);
-
 // Route đăng nhập chung
 router.route('/login').post(UserController.Login);
 
@@ -30,12 +27,12 @@ router.route('/reset-password/:token').patch(UserController.ResetPassword);
 /-Products--/
 // Chỉ Employee hoặc Manager có thể quản lý sản phẩm
 router.route('/products') 
-      .get(protect, isAdminAuthenticated, isAuthorized('Manager', 'Employee'), ProductController.GetAllProducts)
-      .post(protect, isAdminAuthenticated, isAuthorized('Manager', 'Employee') ,ProductController.CreateProduct);
+      .get(ProductController.GetAllProducts)
+      .post(protect,isAdminAuthenticated, isAuthorized('Employee', 'Manager'), ProductController.CreateProduct);
 
 router.route('/product/:id')
       .get(ProductController.getProductbyId)
-      .put(protect, isAdminAuthenticated, isAuthorized('Manager', 'Employee') ,ProductController.UpdateProduct)
+      .put(protect, isAdminAuthenticated,isSupplierAuthenticated, isAuthorized('Manager', 'Employee') ,ProductController.UpdateProduct)
       .delete(protect, isAdminAuthenticated,isAuthorized('Manager', 'Employee'), ProductController.DeleteProduct);
 
 // Chỉ Manager có quyền quản lý danh mục
@@ -52,18 +49,19 @@ router.route('/category/:id')
 // Chỉ Manager có quyền quản lý người dùng
 /-User-/
 router.route('/user')
-      .get(protect, isAdminAuthenticated, isAuthorized('Manager'), UserController.GetAllUser);
+//protect, isAdminAuthenticated, isAuthorized('Manager'),
+      .get( UserController.GetAllUser);
       // .post(protect, isAdminAuthenticated, isAuthorized('Manager') ,UserController.CreateNewUser);
 
 router.route('/user/:id')
-      .get(protect, isAdminAuthenticated, isAuthorized('Manager'),UserController.FindUserbyUserId)
+      .get(UserController.FindUserbyUserId)
       .put(protect, isAdminAuthenticated, isAuthorized('Manager'),UserController.UpdateUserInfomation)
       .delete(protect, isAdminAuthenticated, isAuthorized('Manager'),UserController.DeleteUserById);
 
 // Employee và Manager có quyền quản lý kho
 /-warehouse-/
 router.route('/warehouse')
-      .get(protect, isAdminAuthenticated,isAuthorized('Manager', 'Employee'),WarehouseController.GetAllWareHouse)
+      .get(WarehouseController.GetAllWareHouse)
       .post(protect, isAdminAuthenticated,isAuthorized('Manager', 'Employee'),WarehouseController.CreateWareHouse);
 
 router.route('/warehouse/:id')
@@ -74,7 +72,7 @@ router.route('/warehouse/:id')
 /-supplier-/
 // Supplier quản lý tài khoản và theo dõi đơn hàng của họ
 router.route('/supplier')
-      .get(protect, isSupplierAuthenticated, SupplierController.GetAllSupplier)
+      .get( SupplierController.GetAllSupplier)
       .post(SupplierController.CreateSupplier); //// Đăng ký không cần authentication
 
 router.route('/supplier/:id')
@@ -85,8 +83,11 @@ router.route('/supplier/:id')
 /-Orders-/
 // Supplier tạo đơn hàng cung cấp, Employee xử lý đơn hàng
 router.route('/order')
-      .get(protect, isAdminAuthenticated, isAuthorized('Manager', 'Employee'),OrderController.GetAllOrder)
-      .post(protect, isSupplierAuthenticated, OrderController.CreateOrder); // Supplier tạo đơn hàng
+      .get(protect, OrderController.GetAllOrder)
+      .post(protect, OrderController.CreateOrder); // Supplier tạo đơn hàng
+
+// Route cho lấy danh sách đơn hàng theo userId
+router.get('/order/user/:userId', protect, OrderController.GetOrdersByUserId);
 
 router.route('/order/:id')
       .get(protect, isAdminAuthenticated, isAuthorized('Manager', 'Employee'),OrderController.GetOrderById)

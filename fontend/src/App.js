@@ -4,9 +4,14 @@ import { BrowserRouter as Router, Route, Routes, useNavigate  } from 'react-rout
 import { AuthProvider } from './context/AuthContext';
 import Layout from './components/Layout';
 import Homepage from './page/Homepage';
-import ListProduct from './page/ListProduct';
 import Register from './page/Register';
 import Login from './page/Login'; 
+import Profile from './page/Profile';
+import AdminDashboard from './page/AdminDashboard';
+import ListOrder from './page/ListOrders';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
+import CreateOrder from './page/CreateOrder';
 
 function Bao() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -22,11 +27,16 @@ function Bao() {
         <Routes>
           {/* Route cho trang đăng nhập */}
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} /> 
           <Route path="/register" element={<Register />} />
           {/* Bọc tất cả các route còn lại trong Layout */}
           <Route element={<Layout isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />}>
             <Route path="/" element={<Homepage isSidebarOpen={isSidebarOpen} />} />
-            <Route path="/product-list" element={<ListProduct />} />
+            <Route path="/profile/:id" element={<Profile />} />
+            <Route path="/create-order" element={<CreateOrder />} />
+            <Route path="/list-order/:userId" element={<ListOrder />} />
+            <Route path="/manager-dashboard" element={<AdminDashboard />} />
             {/* Các route khác */}
           </Route>
         </Routes>

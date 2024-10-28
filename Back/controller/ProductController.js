@@ -8,13 +8,12 @@ const Warehouse = require('../model/warehouse'); // Kiểm tra kho
 
 // Hiển thị toàn bộ cơ sở dữ liệu trong hệ thống
 exports.GetAllProducts = catchAsyncErrors(async (req, res, next) => {
-    try {
-        const products = await Product.find().populate('category');
+    
+        const products = await Product.find().populate('supplier')  
+        .populate('warehouse')  
+        .exec();
         return res.status(200).json(products); // Đảm bảo bạn chỉ gọi res.json() một lần
-    } catch (error) {
-        console.log(error.message);
-        return res.status(500).json({ message: error.message }); 
-    }
+
 });
 
 // Nhận thông tin dữ liệu từ một Product cụ thể
@@ -79,7 +78,6 @@ exports.CreateProduct = catchAsyncErrors(async (req, res, next) => {
 });
 
 
-//Cập nhật thông tin cơ sở dữ liệu bằng ID
 // Cập nhật thông tin cơ sở dữ liệu bằng ID
 exports.UpdateProduct = catchAsyncErrors(async (req, res) => {
     try {

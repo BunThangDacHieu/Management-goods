@@ -11,6 +11,7 @@ import AdminDashboard from './page/AdminDashboard';
 import ListOrder from './page/ListOrders';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
+import CreateOrder from './page/CreateOrder';
 
 function Bao() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -33,6 +34,7 @@ function Bao() {
           <Route element={<Layout isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />}>
             <Route path="/" element={<Homepage isSidebarOpen={isSidebarOpen} />} />
             <Route path="/profile/:id" element={<Profile />} />
+            <Route path="/create-order" element={<CreateOrder />} />
             <Route path="/list-order/:userId" element={<ListOrder />} />
             <Route path="/manager-dashboard" element={<AdminDashboard />} />
             {/* Các route khác */}

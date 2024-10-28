@@ -1,0 +1,20 @@
+.supplier-list {
+    border: 1px solid #ccc; /* Đường viền cho danh sách nhà cung cấp */
+    border-radius: 4px;
+    max-height: 200px; /* Đặt chiều cao tối đa */
+    overflow-y: auto; /* Thêm thanh cuộn nếu danh sách quá dài */
+    background-color: #fff; /* Màu nền cho danh sách */
+    margin-top: 5px; /* Khoảng cách trên danh sách */
+    position: absolute; /* Đặt vị trí tương đối */
+    z-index: 1000; /* Đảm bảo danh sách nổi bật hơn các phần khác */
+  }
+  
+  .supplier-item {
+    padding: 8px 12px; /* Padding cho từng mục nhà cung cấp */
+    cursor: pointer; /* Thay đổi con trỏ khi hover */
+  }
+  
+  .supplier-item:hover {
+    background-color: #f0f0f0; /* Màu nền khi hover */
+  }
+  

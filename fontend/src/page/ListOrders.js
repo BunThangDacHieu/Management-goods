@@ -3,6 +3,7 @@ import { Container, Row, Col,Modal, Navbar, Table, Button,Spinner, Form, InputGr
 import { AuthContext } from '../context/AuthContext';
 import { getAllOrders } from '../api/auth'; // Cập nhật hàm gọi API
 import { IoMdAddCircleOutline } from "react-icons/io";
+import { useNavigate } from 'react-router';
 
 export default function ListOrder() {
   const [activeTab, setActiveTab] = useState('all');
@@ -13,9 +14,8 @@ export default function ListOrder() {
   const [filteredOrders, setFilteredOrders] = useState([]); // Sửa thành filteredOrders
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-
-  const [showModal, setShowModal] = useState(false);
-
+  const [entryStatusFilter, setEntryStatusFilter] = useState('');
+  const navigate = useNavigate();
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   };
@@ -48,19 +48,26 @@ export default function ListOrder() {
   
   const handleFilter = useCallback(() => {
     const filtered = orders.filter(order => {
-      const matchesSearch =
-        order.orderCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      const matchesSearch = order.orderCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.purchaseOrderCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (order.user && order.user.name.toLowerCase().includes(searchTerm.toLowerCase()));
-  
       const matchesStatus = statusFilter ? order.status === statusFilter : true;
-  
-      return matchesSearch && matchesStatus;
+      const matchesEntryStatus = entryStatusFilter ? order.entryStatus === entryStatusFilter : true;
+      return matchesSearch && matchesStatus && matchesEntryStatus;
     });
-  
     setFilteredOrders(filtered);
-  }, [searchTerm, statusFilter, orders]);
+  }, [searchTerm, statusFilter, entryStatusFilter, orders]);
 
+
+  const handleStatusFilterChange = (status) => {
+    setStatusFilter(status);
+    handleFilter();
+  };
+
+  const handleEntryStatusFilterChange = (entryStatus) => {
+    setEntryStatusFilter(entryStatus);
+    handleFilter();
+  };
   useEffect(() => {
     handleFilter();
   }, [handleFilter]);
@@ -78,7 +85,8 @@ export default function ListOrder() {
       <Navbar bg="light" expand="lg" style={{ margin: "12px" }}>
         <Container fluid>
           <div className="ms-auto">
-            <Button variant="success">
+            <Button variant="success"
+            onClick={() => navigate('/create-order')}>
               <IoMdAddCircleOutline/>Tạo đơn nhập hàng
             </Button>
           </div>
@@ -127,16 +135,16 @@ export default function ListOrder() {
             <Dropdown className="mx-1">
               <Dropdown.Toggle variant="light">Trạng thái</Dropdown.Toggle>
               <Dropdown.Menu>
-                <Dropdown.Item onClick={() => setStatusFilter('Đang giao dịch')}>Đang giao dịch</Dropdown.Item>
-                <Dropdown.Item onClick={() => setStatusFilter('Hoàn thành')}>Hoàn thành</Dropdown.Item>
-                <Dropdown.Item onClick={() => setStatusFilter('')}>Tất cả</Dropdown.Item>
+                <Dropdown.Item onClick={() => handleStatusFilterChange('Đang giao dịch')}>Đang giao dịch</Dropdown.Item>
+                <Dropdown.Item onClick={() => handleStatusFilterChange('Hoàn thành')}>Hoàn thành</Dropdown.Item>
+                <Dropdown.Item onClick={() => handleStatusFilterChange('')}>Tất cả</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
             <Dropdown>
               <Dropdown.Toggle variant="light">Trạng thái nhập</Dropdown.Toggle>
               <Dropdown.Menu>
-                <Dropdown.Item onClick={() => setStatusFilter('Chưa nhập')}>Chưa nhập</Dropdown.Item>
-                <Dropdown.Item onClick={() => setStatusFilter('Đã nhập')}>Đã nhập</Dropdown.Item>
+                <Dropdown.Item onClick={() => handleEntryStatusFilterChange('Chưa nhập')}>Chưa nhập</Dropdown.Item>
+                <Dropdown.Item onClick={() => handleEntryStatusFilterChange('Đã nhập')}>Đã nhập</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
             <Button variant="primary" onClick={handleFilter}>Lọc</Button>

@@ -6,6 +6,8 @@ const UserController = require('../controller/UserController');
 const WarehouseController = require('../controller/WareHouse');
 const SupplierController = require('../controller/SupplierController');
 const OrderController = require('../controller/OrderController');
+const NotificationController = require('../controller/NotificationController');
+const UserActivityController = require('../controller/UserActivityController')
 const {protect ,isAdminAuthenticated, isSupplierAuthenticated, isAuthorized} = require('../middleware/auth');
 
 // Route đăng ký cho quản lý
@@ -27,22 +29,22 @@ router.route('/reset-password/:token').patch(UserController.ResetPassword);
 /-Products--/
 // Chỉ Employee hoặc Manager có thể quản lý sản phẩm
 router.route('/products') 
-      .get(protect, ProductController.GetAllProducts)
+      .get(protect, isAdminAuthenticated, isAuthorized('Manager'), ProductController.GetAllProducts)
       .post(protect,isAdminAuthenticated, isAuthorized('Employee', 'Manager'), ProductController.CreateProduct);
 
 router.route('/product/:id')
-      .get(ProductController.getProductbyId)
-      .put(protect, isAdminAuthenticated,isSupplierAuthenticated, isAuthorized('Manager', 'Employee') ,ProductController.UpdateProduct)
+      .get(protect, ProductController.getProductbyId)
+      .put(protect, isAdminAuthenticated, isAuthorized('Manager', 'Employee') ,ProductController.UpdateProduct)
       .delete(protect, isAdminAuthenticated,isAuthorized('Manager', 'Employee'), ProductController.DeleteProduct);
 
 // Chỉ Manager có quyền quản lý danh mục
 /--Category----/
 router.route('/category')
-      .get(CategoryController.GetAllCategory)
+      .get(protect, isAdminAuthenticated, isAuthorized('Manager'), CategoryController.GetAllCategory)
       .post(protect, isAdminAuthenticated, isAuthorized('Manager'), CategoryController.CreateCategory);
 
 router.route('/category/:id')
-      .get(CategoryController.getCategorybyId)
+      .get(protect, CategoryController.getCategorybyId)
       .put(protect, isAdminAuthenticated, isAuthorized('Manager') ,CategoryController.UpdateCategory)
       .delete(protect, isAdminAuthenticated, isAuthorized('Manager'), CategoryController.DeleteCategory);
 
@@ -61,7 +63,7 @@ router.route('/user/:id')
 // Employee và Manager có quyền quản lý kho
 /-warehouse-/
 router.route('/warehouse')
-      .get(protect, isAdminAuthenticated,isAuthorized('Manager', 'Employee'),WarehouseController.GetAllWareHouse)
+      .get(WarehouseController.GetAllWareHouse)
       .post(protect, isAdminAuthenticated,isAuthorized('Manager', 'Employee'),WarehouseController.CreateWareHouse);
 
 router.route('/warehouse/:id')
@@ -72,7 +74,7 @@ router.route('/warehouse/:id')
 /-supplier-/
 // Supplier quản lý tài khoản và theo dõi đơn hàng của họ
 router.route('/supplier')
-      .get(protect, isSupplierAuthenticated, SupplierController.GetAllSupplier)
+      .get( SupplierController.GetAllSupplier)
       .post(SupplierController.CreateSupplier); //// Đăng ký không cần authentication
 
 router.route('/supplier/:id')
@@ -84,7 +86,7 @@ router.route('/supplier/:id')
 // Supplier tạo đơn hàng cung cấp, Employee xử lý đơn hàng
 router.route('/order')
       .get(protect, OrderController.GetAllOrder)
-      .post(protect, isSupplierAuthenticated, OrderController.CreateOrder); // Supplier tạo đơn hàng
+      .post(protect, OrderController.CreateOrder); // Supplier tạo đơn hàng
 
 // Route cho lấy danh sách đơn hàng theo userId
 router.get('/order/user/:userId', protect, OrderController.GetOrdersByUserId);
@@ -94,4 +96,22 @@ router.route('/order/:id')
       .put(protect, isAdminAuthenticated, isAuthorized('Manager', 'Employee'),OrderController.UpdateOrder)
       .delete(protect, isAdminAuthenticated, isAuthorized('Manager', 'Employee'),OrderController.DeleteOrder);
 
+
+/-Notification-/
+// Lấy tất cả thông báo cho người dùng
+router.get('/', protect, NotificationController.getUserNotifications);
+
+// Đánh dấu thông báo là đã đọc
+router.put('/notification/:id', protect, NotificationController.markAsRead);
+
+// Tạo thông báo mới (chỉ dùng cho admin)
+router.post('/notification', protect, NotificationController.createNotification);
+
+
+/---UserActivityController--/
+// Lấy tất cả hoạt động của người dùng
+router.get('/activity', protect, UserActivityController.getUserActivities);
+
+// Tạo hoạt động mới
+router.post('/activity', protect, UserActivityController.createUserActivity);
 module.exports = router

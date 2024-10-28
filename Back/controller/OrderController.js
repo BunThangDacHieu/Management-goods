@@ -44,10 +44,7 @@ exports.CreateOrder = catchAsyncErrors(async (req, res, next) => {
             createdBy: req.user.id // Lấy id người dùng từ token (nếu có)
         });
 
-        res.status(201).json({
-            success: true,
-            data: newOrder
-        });
+        res.status(201).json(newOrder);
     } catch (error) {
         console.error(error.message);
         res.status(500).json({ message: 'Đã xảy ra lỗi khi tạo đơn hàng: ' + error.message });

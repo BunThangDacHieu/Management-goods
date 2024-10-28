@@ -1,58 +1,90 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { Search, Plus } from 'lucide-react';
 import { Button, InputGroup, Form, Card } from 'react-bootstrap';
 import { AiFillCaretLeft } from 'react-icons/ai';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoIosAdd } from "react-icons/io";
+import { createOrder, getAllSuppliers, getAllWarehouses, getAllUsers } from '../api/auth'; // Import các hàm API của bạn
+import { AuthContext } from '../context/AuthContext'; // Import AuthContext
 
 const CreateOrder = () => {
+  const { token } = useContext(AuthContext);
   const [supplierSearch, setSupplierSearch] = useState('');
+  const [selectedSuppliers, setSelectedSuppliers] = useState([]); // Sử dụng mảng để lưu nhiều nhà cung cấp
+  const [warehouses, setWarehouses] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+  const [selectedWarehouse, setSelectedWarehouse] = useState(null);
+  const [entryStatus, setEntryStatus] = useState('Chưa nhập');
+  const [products, setProducts] = useState([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
   const navigate = useNavigate();
 
-  // Sample supplier data
-  const suppliers = [
-    { id: 1, name: 'Thut' },
-    { id: 2, name: 'Công Ty Sapo', phone: '08566435576' },
-    { id: 3, name: 'Eazy Miller', phone: '1663726458' },
-  ];
-
-  // Handle click outside to close dropdown
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target) &&
-          !inputRef.current.contains(event.target)) {
-        setIsDropdownVisible(false);
-      }
+    const fetchWarehouses = async () => {
+      const response = await getAllWarehouses(token);
+      setWarehouses(response.data);
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    const fetchEmployees = async () => {
+      const response = await getAllUsers(token);
+      setEmployees(response.data.filter(user => user.role === 'Employee'));
+    };
 
-  // Handle input focus
+    const fetchSuppliers = async () => {
+      const response = await getAllSuppliers(token);
+      setSuppliers(response.data);
+    };
+
+    fetchWarehouses();
+    fetchEmployees();
+    fetchSuppliers();
+  }, [token]);
+
+  const handleCreateOrder = async () => {
+    const orderData = {
+      user: 'user_id',
+      products,
+      shippingAddress: 'Địa chỉ giao hàng',
+      warehouse: selectedWarehouse,
+      suppliers: selectedSuppliers.map(supplier => supplier.id), // Cập nhật để lấy danh sách ID nhà cung cấp
+      orderCode: 'Mã đơn hàng',
+      purchaseOrderCode: 'Mã đơn nhập hàng',
+    };
+
+    try {
+      await createOrder(orderData, token);
+      navigate('/list-order');
+    } catch (error) {
+      console.error('Error creating order:', error);
+    }
+  };
+
   const handleInputFocus = () => {
     setIsDropdownVisible(true);
   };
 
-  // Handle input change
   const handleSearchChange = (e) => {
     setSupplierSearch(e.target.value);
     setIsDropdownVisible(true);
   };
 
-  // Handle supplier selection
   const handleSupplierSelect = (supplier) => {
-    setSupplierSearch(supplier.name);
+    if (!selectedSuppliers.find(s => s.id === supplier.id)) { // Kiểm tra xem nhà cung cấp đã được chọn chưa
+      setSelectedSuppliers([...selectedSuppliers, supplier]);
+    }
+    setSupplierSearch('');
     setIsDropdownVisible(false);
   };
 
-  // Handle add new supplier
+  const handleRemoveSupplier = (supplierId) => {
+    setSelectedSuppliers(selectedSuppliers.filter(supplier => supplier.id !== supplierId));
+  };
+
   const handleAddSupplier = () => {
-    console.log('Add new supplier');
-    setIsDropdownVisible(false);
+    console.log("Thêm nhà cung cấp mới");
   };
 
   return (
@@ -65,9 +97,9 @@ const CreateOrder = () => {
             Quay lại danh sách nhập hàng
           </Button>
           <div className="d-flex gap-2">
-            <Button variant="outline-secondary">Thoát</Button>
-            <Button variant="outline-secondary">Tạo & chưa nhập</Button>
-            <Button variant="primary">Tạo & nhập hàng</Button>
+            <Button variant="outline-secondary" onClick={() => navigate('/list-order/${userId}')}>Thoát</Button>
+            <Button variant="outline-secondary" onClick={() => setEntryStatus('Chưa nhập')}>Tạo & chưa nhập</Button>
+            <Button variant="primary" onClick={handleCreateOrder}>Tạo & nhập hàng</Button>
           </div>
         </div>
 
@@ -79,7 +111,6 @@ const CreateOrder = () => {
             </Card.Header>
             <Card.Body>
               <InputGroup className="mb-3">
-              
                 <Form.Control
                   ref={inputRef}
                   type="text"
@@ -96,8 +127,8 @@ const CreateOrder = () => {
                   className="mt-2 border border-gray-200 rounded bg-white shadow-lg"
                 >
                   <Button variant="link" className="text-primary" onClick={handleAddSupplier}>
-                <IoIosAdd className="h-4 w-4" /> Thêm mới nhà cung cấp
-              </Button>
+                    <IoIosAdd className="h-4 w-4" /> Thêm mới nhà cung cấp
+                  </Button>
                   <div className="max-h-60 overflow-y-auto">
                     {suppliers
                       .filter(supplier => supplier.name.toLowerCase().includes(supplierSearch.toLowerCase()))
@@ -116,6 +147,45 @@ const CreateOrder = () => {
                   </div>
                 </div>
               )}
+              {/* Selected Suppliers */}
+              <div className="mt-3 d-flex flex-wrap gap-2">
+                {selectedSuppliers.map(supplier => (
+                  <div
+                    key={supplier.id}
+                    className="d-flex align-items-center bg-light border rounded-pill px-2 py-1"
+                    style={{ 
+                      width: 'auto', 
+                      height: '30px', 
+                      maxWidth: '100px', 
+                      cursor: 'pointer', 
+                      position: 'relative'
+                    }}
+                    onMouseEnter={(e) => {
+                      const tooltip = document.createElement('div');
+                      tooltip.innerText = supplier.name;
+                      tooltip.style.position = 'absolute';
+                      tooltip.style.left = '100%';
+                      tooltip.style.top = '50%';
+                      tooltip.style.transform = 'translateY(-50%)';
+                      tooltip.style.backgroundColor = 'white';
+                      tooltip.style.border = '1px solid #ccc';
+                      tooltip.style.borderRadius = '4px';
+                      tooltip.style.padding = '5px';
+                      tooltip.style.whiteSpace = 'nowrap';
+                      e.currentTarget.appendChild(tooltip);
+                      e.currentTarget.tooltip = tooltip; // Lưu tooltip để có thể xóa sau
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.removeChild(e.currentTarget.tooltip);
+                    }}
+                  >
+                    <span>{supplier.name.length > 8 ? `${supplier.name.substring(0, 8)}...` : supplier.name}</span>
+                    <Button variant="link" onClick={() => handleRemoveSupplier(supplier.id)} className="text-danger ms-1">
+                      <span>X</span>
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </Card.Body>
           </Card>
 
@@ -127,16 +197,18 @@ const CreateOrder = () => {
             <Card.Body>
               <div className="mb-3">
                 <Form.Label className="font-weight-bold">Nhà Kho</Form.Label>
-                <Form.Select>
-                  <option>Nhà kho mặc định</option>
-                  {/* Add other branches as needed */}
+                <Form.Select onChange={(e) => setSelectedWarehouse(e.target.value)}>
+                  {warehouses.map(warehouse => (
+                    <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
+                  ))}
                 </Form.Select>
               </div>
               <div className="mb-3">
                 <Form.Label className="font-weight-bold">Nhân viên</Form.Label>
                 <Form.Select>
-                  <option>Pham Lan</option>
-                  {/* Add other employees as needed */}
+                  {employees.map(employee => (
+                    <option key={employee.id} value={employee.id}>{employee.name}</option>
+                  ))}
                 </Form.Select>
               </div>
               <div className="mb-3">
@@ -168,12 +240,21 @@ const CreateOrder = () => {
                     <th>SL nhập</th>
                     <th>Đơn giá</th>
                     <th>Chiết khấu</th>
-                    <th>Thuế</th>
-                    <th>Thành tiền</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {/* Product rows will go here */}
+                  {products.map((product, index) => (
+                    <tr key={product.id}>
+                      <td>{index + 1}</td>
+                      <td><img src={product.image} alt={product.name} style={{ width: '50px' }} /></td>
+                      <td>{product.name}</td>
+                      <td>{product.barcode}</td>
+                      <td>{product.unit}</td>
+                      <td>{product.quantity}</td>
+                      <td>{product.price}</td>
+                      <td>{product.discount}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </Card.Body>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Nav } from 'react-bootstrap';
 import { Link, useLocation, useNavigate  } from 'react-router-dom';
-import { Home, Truck, Package, Route, Settings, Shield, ChevronDown, ChevronUp } from 'lucide-react';
+import { Home, Truck, Package, Route, Settings, ChevronDown, ChevronUp } from 'lucide-react';
 import '../css/Sidebar.css';
 
 export default function Sidebar({ isOpen, toggleSidebar }) {
@@ -15,8 +15,8 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
         { 
             icon: <Package size={20} />, 
             label: 'Quản lý hàng hóa', 
-            subItems: [
-                { path: '/list-order/:userId', label: 'Danh sách sản phẩm' },
+            subItems: [ 
+                { path: '/list-order/:userId', label: 'Quản lý đơn hàng' },
                 { path: '/inventory', label: 'Quản lý kho' },
                 { path: '/', label:'Nhập hàng'}
             ]

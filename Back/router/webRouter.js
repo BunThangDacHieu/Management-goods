@@ -29,7 +29,7 @@ router.route('/reset-password/:token').patch(UserController.ResetPassword);
 /-Products--/
 // Chỉ Employee hoặc Manager có thể quản lý sản phẩm
 router.route('/products') 
-      .get(protect, isAdminAuthenticated, isAuthorized('Manager'), ProductController.GetAllProducts)
+      .get(protect, ProductController.GetAllProducts)
       .post(protect,isAdminAuthenticated, isAuthorized('Employee', 'Manager'), ProductController.CreateProduct);
 
 router.route('/product/:id')

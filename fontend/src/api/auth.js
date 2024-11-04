@@ -135,10 +135,10 @@ export const deleteOrder = (id, token) =>
   axios.delete(`${API_URL}/order/${id}`, authHeader(token));
 
 //====Notifications===
-export const getNotifications = (token) => axios.get(`$(API_URL)/notification`, authHeader(token));
+export const getNotifications = (token) => axios.get(`${API_URL}/notification`, authHeader(token));
 export const markAsRead = (id, token) => axios.put(`${API_URL}/notification/${id}`, authHeader(token));
 
 //Activity
-export const getUserActivities = (token) => axios.get(`$(API_URL)/activity`, authHeader(token));
+export const getUserActivities = (token) => axios.get(`${API_URL}/activity`, authHeader(token));
 export const createUserActivity = (action, token) => 
-  axios.post(`$(API_URL)/activity`, { action }, authHeader(token) );
+  axios.post(`${API_URL}/activity`, { action }, authHeader(token) );

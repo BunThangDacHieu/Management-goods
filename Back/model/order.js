@@ -65,6 +65,10 @@ const OrderSchema = new mongoose.Schema({
         ref: 'Employee', // Bạn cần tạo mô hình Employee nếu chưa có
         required: true
     },
+    shippingAddress: { // New field added
+        type: String,
+        required: true
+    }
 }, 
 {
     timestamps: true // Tự động thêm createdAt và updatedAt

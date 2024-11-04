@@ -35,6 +35,10 @@ const ProductSchema = new mongoose.Schema({
     sku: { //mã duy nhất cho sản phẩm / Stock Keping unit
         type: String,
         unique: true
+    },
+    barcode: { // Thêm mã barcode nếu cần
+        type: String,
+        unique: true // Đảm bảo mã barcode là duy nhất
     }
 },
     {

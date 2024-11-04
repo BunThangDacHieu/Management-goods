@@ -9,6 +9,7 @@ const generateToken = require('../utils/jwtToken');
 const {ErrorHandler} = require('../middleware/error');
 const Supplier = require('../model/supplier');
 const crypto = require('crypto');
+const bcrypt = require('bcrypt')
 
 
 //-------------Hệ thống đăng nhập và đăng ký người dùng---------------/
@@ -303,21 +304,24 @@ exports.UpdateUserInfomation = catchAsyncErrors(async (req, res) =>{
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ message: "Email yêu cầu bắt buộc." });
         }
-        if (
-            !req.body.mail ||!req.body.password) {
-                return res.status(400).send({
-                    message: "Nhập đầy đủ thông tin",
-                });
-            }
-        const UpdateData = {
+        // Check if required fields are provided
+        if (!req.body.email) {
+            return res.status(400).send({ message: "Email yêu cầu bắt buộc." });
+        }
+        const updateData  = {
             name: req.body.name,
-            email: req.body.mail,
-            password: req.body.password
+            email: req.body.mail
         }
 
+        if (req.body.password) {
+            if (req.body.password.length < 8) {
+                return res.status(400).json({ message: "Mật khẩu phải ít nhất 8 ký tự." });
+            }
+            updateData.password = await bcrypt.hash(req.body.password, 10);
+        }
         const updatedUser = await User.findOneAndUpdate(
-            id,
-            UpdateData,
+            { _id: id },
+            updateData ,
             { new: true, runValidators: true }
         );
 

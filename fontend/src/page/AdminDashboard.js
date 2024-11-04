@@ -18,7 +18,7 @@ export default function AdminDashboard() {
             try {
                 if (userRole === 'Manager') { // Kiểm tra vai trò
                     const productsResponse = await getAllProducts(token);
-                    const categoriesResponse = await getAllCategories();
+                    const categoriesResponse = await getAllCategories(token);
                     const usersResponse = await getAllUsers(token);
                     const warehousesResponse = await getAllWarehouses(token);
                     const suppliersResponse = await getAllSuppliers(token);

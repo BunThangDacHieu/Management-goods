@@ -29,7 +29,7 @@ router.route('/reset-password/:token').patch(UserController.ResetPassword);
 /-Products--/
 // Chỉ Employee hoặc Manager có thể quản lý sản phẩm
 router.route('/products') 
-      .get(protect, isAdminAuthenticated, isAuthorized('Manager'), ProductController.GetAllProducts)
+      .get(protect, ProductController.GetAllProducts)
       .post(protect,isAdminAuthenticated, isAuthorized('Employee', 'Manager'), ProductController.CreateProduct);
 
 router.route('/product/:id')
@@ -40,7 +40,8 @@ router.route('/product/:id')
 // Chỉ Manager có quyền quản lý danh mục
 /--Category----/
 router.route('/category')
-      .get(protect, isAdminAuthenticated, isAuthorized('Manager'), CategoryController.GetAllCategory)
+//protect, isAdminAuthenticated, isAuthorized('Manager'),
+      .get(CategoryController.GetAllCategory)
       .post(protect, isAdminAuthenticated, isAuthorized('Manager'), CategoryController.CreateCategory);
 
 router.route('/category/:id')

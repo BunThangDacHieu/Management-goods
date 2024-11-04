@@ -34,7 +34,7 @@ router.route('/products')
 
 router.route('/product/:id')
       .get(protect, ProductController.getProductbyId)
-      .put(protect, isAdminAuthenticated, isAuthorized('Manager', 'Employee') ,ProductController.UpdateProduct)
+      .put(protect, ProductController.UpdateProduct)
       .delete(protect, isAdminAuthenticated,isAuthorized('Manager', 'Employee'), ProductController.DeleteProduct);
 
 // Chỉ Manager có quyền quản lý danh mục
@@ -58,7 +58,7 @@ router.route('/user')
 
 router.route('/user/:id')
       .get(UserController.FindUserbyUserId)
-      .put(protect, isAdminAuthenticated, isAuthorized('Manager'),UserController.UpdateUserInfomation)
+      .put(protect, UserController.UpdateUserInfomation)
       .delete(protect, isAdminAuthenticated, isAuthorized('Manager'),UserController.DeleteUserById);
 
 // Employee và Manager có quyền quản lý kho

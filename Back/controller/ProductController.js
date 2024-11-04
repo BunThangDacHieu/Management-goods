@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose')
 const Product = require('../model/product');
 const catchAsyncErrors = require('../middleware/catchAsyncErrors');
 const Category = require('../model/category'); // Kiểm tra danh mục
@@ -35,6 +36,9 @@ exports.CreateProduct = catchAsyncErrors(async (req, res, next) => {
         return res.status(400).json({ message: 'Tên sản phẩm, giá cả, danh mục, nhà cung cấp và kho là bắt buộc' });
     }
 
+    if (!mongoose.Types.ObjectId.isValid(category) || !mongoose.Types.ObjectId.isValid(supplier) || !mongoose.Types.ObjectId.isValid(warehouse)) {
+        return res.status(400).json({ message: 'Danh mục, nhà cung cấp hoặc kho hàng không hợp lệ' });
+    }
     // Kiểm tra xem danh mục có tồn tại không
     const ExistCategory = await Category.findById(category); 
     if (!ExistCategory) {
@@ -67,8 +71,13 @@ exports.CreateProduct = catchAsyncErrors(async (req, res, next) => {
     });
 
     // Lưu sản phẩm vào cơ sở dữ liệu
-    const savedProduct = await newProduct.save();
-    return res.status(201).json(savedProduct);
+    try {
+        const savedProduct = await newProduct.save();
+        return res.status(201).json(savedProduct);
+    } catch (error) {
+        console.error('Error saving product:', error);
+        return res.status(500).json({ message: 'Error saving product' });
+    }
 });
 
 
@@ -76,17 +85,14 @@ exports.CreateProduct = catchAsyncErrors(async (req, res, next) => {
 exports.UpdateProduct = catchAsyncErrors(async (req, res) => {
     const updatedProduct = await Product.findByIdAndUpdate(
         req.params.id,
-        req.body,
-        {
-            new: true,
-            runValidators: true,
-        }
+        { $set: req.body }, // Chỉ cập nhật các trường trong req.body
+        { new: true, runValidators: true }
     ).populate('category');
 
     if (!updatedProduct) {
         return res.status(404).json({ message: 'Product not found' });
     }
-
+    console.log('Updated product:', updatedProduct);
     res.status(200).json(updatedProduct);
 });
 

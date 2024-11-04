@@ -301,6 +301,7 @@ exports.UpdateUserInfomation = catchAsyncErrors(async (req, res) =>{
     try {
         const {id} = req.params;
 
+    
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ message: "Email yêu cầu bắt buộc." });
         }
@@ -310,7 +311,7 @@ exports.UpdateUserInfomation = catchAsyncErrors(async (req, res) =>{
         }
         const updateData  = {
             name: req.body.name,
-            email: req.body.mail
+            email: req.body.email
         }
 
         if (req.body.password) {

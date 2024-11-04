@@ -1,31 +1,30 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
-import { Search, Plus } from 'lucide-react';
 import { Button, InputGroup, Form, Card, Modal } from 'react-bootstrap';
 import { AiFillCaretLeft } from 'react-icons/ai';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { IoIosAdd } from "react-icons/io";
 import { createOrder, getAllSuppliers, getAllWarehouses, getAllUsers, getAllProducts } from '../api/auth'; // Import các hàm API của bạn
 import { AuthContext } from '../context/AuthContext'; // Import AuthContext
 
 const CreateOrder = () => {
-  const { token, userId } = useContext(AuthContext);
+  const { token, userId, userRole} = useContext(AuthContext);
   const [supplierSearch, setSupplierSearch] = useState('');
   const [selectedSuppliers, setSelectedSuppliers] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(''); 
   const [selectedWarehouse, setSelectedWarehouse] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState(null); 
   const [entryStatus, setEntryStatus] = useState('Chưa nhập');
   const [products, setProducts] = useState([]);
-  const [allProducts, setAllProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [quantity, setQuantity] = useState(1);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
   const navigate = useNavigate();
 
-
+  const [availableProducts, setAvailableProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [shippingAddress, setShippingAddress] = useState('');
   const [orderCode, setOrderCode] = useState('');
@@ -48,7 +47,7 @@ const CreateOrder = () => {
     };
     const fetchProducts = async () => {
       const response = await getAllProducts(token);
-      setAllProducts(response.data);
+      setProducts(response.data);
     };
 
 
@@ -58,6 +57,7 @@ const CreateOrder = () => {
     fetchProducts();
   }, [token]);
 
+  
   const handleCreateOrder = async () => {
     const orderData = {
       user: userId,
@@ -70,14 +70,24 @@ const CreateOrder = () => {
       entryStatus,
     };
 
+    if (!orderData.shippingAddress || !orderData.orderCode || !orderData.purchaseOrderCode) {
+      alert("Please fill in all required fields!");
+      return;
+    }
     try {
       await createOrder(orderData, token);
-      navigate('/list-order');
+      alert('Đơn hàng đã được tạo thành công!');
     } catch (error) {
-      console.error('Error creating order:', error);
+      console.error('Lỗi khi tạo đơn hàng:', error);
+      alert('Đã xảy ra lỗi khi tạo đơn hàng. Vui lòng thử lại.');
     }
   };
-
+  const handleAddProduct = (product) => {
+    setProducts((prevProducts) => [
+      ...prevProducts,
+      { productId: product.id, quantity: 1, price: product.price }, 
+    ]);
+  };
   const handleShowModal = (status) => {
     setEntryStatus(status); 
     setShowModal(true); // Show modal
@@ -108,10 +118,9 @@ const CreateOrder = () => {
       
       if (!isAlreadySelected) {
         const updatedSuppliers = [...prevSelectedSuppliers, supplier]; // Thêm nhà cung cấp mới vào danh sách
-        console.log("Current Selected Suppliers:", updatedSuppliers); // Hiển thị danh sách hiện tại
         return updatedSuppliers; // Trả về danh sách đã cập nhật
       } else {
-        console.log("Supplier already selected:", supplier.name); // Nếu nhà cung cấp đã được chọn
+        console.error()
       }
   
       return prevSelectedSuppliers; // Nếu nhà cung cấp đã tồn tại, trả về danh sách cũ
@@ -126,8 +135,13 @@ const CreateOrder = () => {
   };
 
   const handleAddSupplier = () => {
-    console.log("Thêm nhà cung cấp mới");
+    console.log('Hello')
   };
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.sku.toLowerCase().includes(searchTerm.toLowerCase()) || // Assuming each product has a sku property
+    product.barcode.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="min-vh-100 bg-light">
@@ -158,7 +172,7 @@ const CreateOrder = () => {
                   type="text"
                   placeholder="Tìm theo tên, SĐT, mã nhà cung cấp... (F4)"
                   value={supplierSearch}
-                  onChange={handleSearchChange}
+                  onChange={(e) => setSupplierSearch(e.target.value)}
                   onFocus={handleInputFocus}
                   
                 />
@@ -183,7 +197,7 @@ const CreateOrder = () => {
                         <div
                           key={supplier.id}
                           className="px-4 py-2 hover:bg-gray-50 cursor-pointer"
-                          onClick={() => handleSupplierSelect(supplier)} // Đảm bảo sự kiện gọi đúng hàm
+                          onClick={() => handleSupplierSelect(supplier)} 
                         >
                         <div className="font-medium">{supplier.name}</div>
                             {supplier.phone && (
@@ -251,18 +265,32 @@ const CreateOrder = () => {
                   ))}
                 </Form.Select>
               </div>
-              <div className="mb-3">
+              {selectedWarehouse && userRole !== 'Employee' && (<div className="mb-3">
                 <Form.Label className="font-weight-bold">Nhân viên</Form.Label>
-                <Form.Select>
+                <Form.Select onChange={(e) => setSelectedEmployee(e.target.value)}>
                 <option value="">Chọn nhân viên</option>
                   {employees.map(employee => (
                     <option key={employee.id} value={employee.id}>{employee.name}</option>
                   ))}
                 </Form.Select>
               </div>
+            )}
               <div className="mb-3">
-              <Form.Label className="font-weight-bold">Tình trạng nhập hàng</Form.Label>
-              <div>{entryStatus}</div>
+                <Form.Label className="font-weight-bold">Mã đơn hàng</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={orderCode}
+                  onChange={(e) => setOrderCode(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+                <Form.Label className="font-weight-bold">Nhập mã PO</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Nhập mã PO"
+                  value={purchaseOrderCode}
+                  onChange={(e) => setPurchaseOrderCode(e.target.value)}
+                />
               </div>
             </Card.Body>
           </Card>
@@ -276,12 +304,8 @@ const CreateOrder = () => {
                 <Form.Control 
                   type="text" 
                   placeholder="Tìm theo tên, mã SKU, hoặc quét mã Barcode... (F3)" 
-                  value={selectedProduct ? selectedProduct.name : ''}
-                    onFocus={handleInputFocus}
-                    onChange={(e) => {
-                      const searchTerm = e.target.value;
-                      setSelectedProduct(allProducts.find(product => product.name.toLowerCase() === searchTerm.toLowerCase()));
-                    }}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </InputGroup>
               <table className="table">
@@ -291,23 +315,23 @@ const CreateOrder = () => {
                     <th>Ảnh</th>
                     <th>Tên sản phẩm</th>
                     <th>Mã Barcode</th>
-                    <th>Đơn vị</th>
+                    <th>Danh mục</th>
                     <th>SL nhập</th>
                     <th>Đơn giá</th>
                     <th>Chiết khấu</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {allProducts.map((product, index) => (
+                  {filteredProducts.map((product, index) => (
                     <tr key={product.id}>
                       <td>{index + 1}</td>
                       <td><img src={product.image} alt={product.name} style={{ width: '50px' }} /></td>
-                      <td>{product.name}</td>
-                      <td>{product.barcode}</td>
-                      <td>{product.unit}</td>
-                      <td>{product.quantity}</td>
-                      <td>{product.price}</td>
-                      <td>{product.discount}</td>
+                      <td>{product.name || "N/A"}</td>
+                      <td>{product.barcode|| "N/A"}</td>
+                      <td>{product.category ? product.category.name : 'Chưa có'}</td>
+                      <td>{product.quantity|| "N/A"}</td>
+                      <td>{product.price|| "N/A"}</td>
+                      <td>{product.discount|| "N/A"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -318,45 +342,46 @@ const CreateOrder = () => {
         {/* Modal for order details */}
         <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Thông tin đơn hàng</Modal.Title>
+          <Modal.Title>Xác nhận</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          <p>Bạn có chắc chắn muốn tạo đơn hàng với trạng thái: <strong>{entryStatus}</strong>?</p>
           <Form>
             <Form.Group controlId="shippingAddress">
-              <Form.Label>Địa chỉ giao hàng</Form.Label>
-              <Form.Control
-                type="text"
-                value={shippingAddress}
-                onChange={(e) => setShippingAddress(e.target.value)}
-                required
-              />
+            <Form.Label>Địa chỉ giao hàng</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Nhập địa chỉ giao hàng"
+              value={shippingAddress}
+              onChange={(e) => setShippingAddress(e.target.value)}
+            />
             </Form.Group>
-            <Form.Group controlId="orderCode">
-              <Form.Label>Mã đơn hàng</Form.Label>
-              <Form.Control
-                type="text"
-                value={orderCode}
-                onChange={(e) => setOrderCode(e.target.value)}
-                required
-              />
-            </Form.Group>
-            <Form.Group controlId="purchaseOrderCode">
-              <Form.Label>Mã PO</Form.Label>
-              <Form.Control
-                type="text"
-                value={purchaseOrderCode}
-                onChange={(e) => setPurchaseOrderCode(e.target.value)}
-                required
-              />
-            </Form.Group>
-          </Form>
+            <Form.Group controlId="productSelection">
+            <Form.Label>Chọn Sản Phẩm</Form.Label>
+            {availableProducts.map((product) => (
+              <div key={product.id}>
+                <span>{product.name}</span> {/* Thay đổi thuộc tính hiển thị nếu cần */}
+                <Button onClick={() => handleAddProduct(product)}>Thêm</Button>
+              </div>
+            ))}
+          </Form.Group>
+        </Form>
+        <h5>Sản Phẩm Đã Chọn:</h5>
+        <ul>
+          {products.map((product, index) => (
+            <li key={index}>
+              {product.productId} - Số lượng: {product.quantity} - Giá: {product.price}
+            </li>
+          ))}
+        </ul>
+          
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+        <Button variant="secondary" onClick={() => setShowModal(false)}>
             Hủy
           </Button>
           <Button variant="primary" onClick={handleModalSubmit}>
-            Lưu
+            Xác nhận
           </Button>
         </Modal.Footer>
       </Modal>

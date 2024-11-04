@@ -55,9 +55,10 @@ export default function Profile() {
         }
     };
 
-    if (loading) return <div>Đang tải...</div>;
+    if (loading) return <div>Đang tải...</div>; 
     if (error) return <div className="text-danger">{error}</div>;
-
+    console.log(id);
+    
     return (
         <Container className="mt-4">
         <Row className="justify-content-center">

@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import { getAllCategories, createCategory, updateCategory, deleteCategory } from "../api/auth";
 import { Container, Row, Col, Button, Modal, Form, Table } from "react-bootstrap";
-import { AuthContext } from "../context/AuthContext";
 
 export default function CategorySection({ token }) {  // Nhận token từ props
-    const { userRole } = useContext(AuthContext);
     const [categories, setCategories] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editingCategory, setEditingCategory] = useState(null);

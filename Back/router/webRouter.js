@@ -40,7 +40,8 @@ router.route('/product/:id')
 // Chỉ Manager có quyền quản lý danh mục
 /--Category----/
 router.route('/category')
-      .get(protect, isAdminAuthenticated, isAuthorized('Manager'), CategoryController.GetAllCategory)
+//protect, isAdminAuthenticated, isAuthorized('Manager'),
+      .get(CategoryController.GetAllCategory)
       .post(protect, isAdminAuthenticated, isAuthorized('Manager'), CategoryController.CreateCategory);
 
 router.route('/category/:id')
